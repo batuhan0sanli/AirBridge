@@ -7,6 +7,8 @@ import (
 	"os"
 
 	"github.com/charmbracelet/bubbles/filepicker"
+	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type Step int
@@ -23,8 +25,11 @@ const (
 
 type Model struct {
 	tui.Window
-	step         Step
-	filepicker   filepicker.Model
+	step Step
+
+	filepicker filepicker.Model
+	spinner    spinner.Model
+
 	selectedFile string
 	file         *os.File
 	fileMetadata pkg.FileMetadata
@@ -37,13 +42,6 @@ type Model struct {
 
 func InitialModel() *Model {
 	fp := filepicker.New()
-	// current_path := pkg.GetCurrentDirectory()
-	//_, err := os.Getwd()
-	//if err != nil {
-	//	log.Fatalf("Çalışma dizini alınamadı: %v", err)
-	//}
-	// filepicker.CurrentDirectory = cwd
-
 	// Todo: Add styles
 	styles := filepicker.DefaultStyles()
 	fp.Styles = styles
@@ -51,7 +49,11 @@ func InitialModel() *Model {
 	window := tui.Window{}
 	err := tui.ErrTest
 
-	return &Model{Window: window, step: StepUndefined, filepicker: fp, err: err}
+	s := spinner.New()
+	s.Spinner = spinner.Dot
+	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+
+	return &Model{Window: window, step: StepUndefined, filepicker: fp, spinner: s, err: err}
 }
 
 func (m *Model) nextStep() {

@@ -13,7 +13,7 @@ func (m *Model) View() string {
 		view := m.filepicker.View()
 		return tui.View(m.err, view)
 	case StepReadyingFile:
-		input := "Readying file" + m.statusText
+		input := m.spinner.View() + m.statusText
 		view := tui.MainStyle(m.Window).Render(input)
 		return tui.View(m.err, view)
 	case StepAwaitingPublicKey:

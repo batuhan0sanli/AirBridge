@@ -9,7 +9,10 @@ import (
 
 func (m *Model) Init() tea.Cmd {
 	m.nextStep()
-	return m.filepicker.Init()
+	return tea.Batch(
+		m.filepicker.Init(),
+		m.spinner.Tick,
+	)
 }
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -20,7 +23,10 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case fileOpenedMsg:
 		m.file = msg.file
 		m.statusText = "Extracting metadata"
-		return m, extractMetadataCmd(m.file)
+		return m, tea.Batch(
+			extractMetadataCmd(m.file),
+			m.spinner.Tick,
+		)
 
 	case metadataExtractedMsg:
 		m.fileMetadata = msg.metadata
@@ -64,15 +70,15 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		//	m.nextStep()
 		//	return m, nil
 
-		case "backspace":
-			if len(m.userText) > 0 {
-				m.userText = m.userText[:len(m.userText)-1]
-			}
+		//case "backspace":
+		//	if len(m.userText) > 0 {
+		//		m.userText = m.userText[:len(m.userText)-1]
+		//	}
 
 		default:
-			if len(msg.String()) == 1 {
-				m.userText += msg.String()
-			}
+			//if len(msg.String()) == 1 {
+			//	m.userText += msg.String()
+			//}
 		}
 	}
 
@@ -83,10 +89,15 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.selectedFile = path
 			m.statusText = "Opening file"
 			m.step = StepReadyingFile
-			return m, openFileCmd(path)
+			return m, tea.Batch(
+				openFileCmd(path),
+				m.spinner.Tick,
+			)
 		}
 	case StepReadyingFile:
-		// no-op; waiting for filePreparedMsg/errMsg
+		var sCmd tea.Cmd
+		m.spinner, sCmd = m.spinner.Update(msg)
+		return m, sCmd
 
 	default:
 		// No default action
