@@ -35,7 +35,6 @@ type Model struct {
 	fileMetadata pkg.FileMetadata
 	rawPublicKey string
 	publicKey    *rsa.PublicKey
-	userText     string
 	statusText   string
 	err          error
 }
