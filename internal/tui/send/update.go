@@ -3,6 +3,7 @@ package send
 import (
 	"AirBridge/internal/tui"
 
+	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -12,6 +13,7 @@ func (m *Model) Init() tea.Cmd {
 	return tea.Batch(
 		m.filepicker.Init(),
 		m.spinner.Tick,
+		textarea.Blink,
 	)
 }
 
@@ -45,6 +47,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		headerH := lipgloss.Height(tui.Header())
 		footerH := lipgloss.Height(tui.Footer(m.err))
+		headerW := lipgloss.Width(tui.Header())
 		spacer := 0
 
 		availableHeight := m.Window.Height - (headerH + footerH + spacer)
@@ -52,12 +55,23 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			availableHeight = 3
 		}
 		m.AvailableHeight = availableHeight
+
+		availableWidth := headerW
+		m.AvailableWidth = availableWidth
 		return m, nil
 
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c", "esc":
+		switch msg.Type {
+		case tea.KeyCtrlC, tea.KeyEsc:
 			return m, tea.Quit
+		case tea.KeyEnter:
+			switch m.step {
+			case StepAwaitingPublicKey:
+				m.rawPublicKey = m.textarea.Value()
+				m.textarea.Reset()
+				m.nextStep()
+			default:
+			}
 
 		//case "enter":
 		//	//switch m.step {
@@ -97,7 +111,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case StepReadyingFile:
 		m.spinner, cmd = m.spinner.Update(msg)
 		return m, cmd
-
+	case StepAwaitingPublicKey:
+		m.textarea, cmd = m.textarea.Update(msg)
+		return m, cmd
 	default:
 		// No default action
 	}

@@ -8,6 +8,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/filepicker"
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -33,10 +34,13 @@ type Model struct {
 	selectedFile string
 	file         *os.File
 	fileMetadata pkg.FileMetadata
+
+	textarea     textarea.Model
 	rawPublicKey string
 	publicKey    *rsa.PublicKey
-	statusText   string
-	err          error
+
+	statusText string
+	err        error
 }
 
 func InitialModel() *Model {
@@ -52,7 +56,17 @@ func InitialModel() *Model {
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
 
-	return &Model{Window: window, step: StepUndefined, filepicker: fp, spinner: s, err: err}
+	ta := textarea.New()
+	ta.Placeholder = "Paste Base64 encoded public key here ..."
+	ta.ShowLineNumbers = false
+	ta.Focus()
+	return &Model{
+		Window:     window,
+		step:       StepUndefined,
+		spinner:    s,
+		filepicker: fp,
+		textarea:   ta,
+		err:        err}
 }
 
 func (m *Model) nextStep() {
