@@ -1,6 +1,7 @@
 package send
 
 import (
+	"AirBridge/internal/tui"
 	"AirBridge/pkg"
 	"crypto/rsa"
 	"os"
@@ -21,6 +22,7 @@ const (
 )
 
 type Model struct {
+	tui.Window
 	step         Step
 	filePath     filepicker.Model
 	selectedFile string
@@ -29,7 +31,10 @@ type Model struct {
 	rawPublicKey string
 	publicKey    *rsa.PublicKey
 	userText     string
-	err          error
+	//width           int
+	//height          int
+	//availableHeight int
+	err error
 }
 
 func InitialModel() *Model {
@@ -45,7 +50,10 @@ func InitialModel() *Model {
 	styles := filepicker.DefaultStyles()
 	filePath.Styles = styles
 
-	return &Model{step: StepUndefined, filePath: filePath}
+	window := tui.Window{}
+	err := tui.ErrTest
+
+	return &Model{Window: window, step: StepUndefined, filePath: filePath, err: err}
 }
 
 func (m *Model) nextStep() {

@@ -18,15 +18,20 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
-		// FilePicker Limit
-		bannerHeight := lipgloss.Height(tui.AirBridgeBanner()) + 3
-		spacer := 1 // banner ile picker arasında eklediğimiz boş satır
-		footer := 0 // hata satırı dinamik; minimumda 0 bırakıyoruz
-		availableHeight := msg.Height - (bannerHeight + spacer + footer)
+
+		m.Width = msg.Width
+		m.Height = msg.Height
+
+		headerH := lipgloss.Height(tui.Header())
+		footerH := lipgloss.Height(tui.Footer(m.err))
+		spacer := 0
+
+		availableHeight := m.Window.Height - (headerH + footerH + spacer)
 		if availableHeight < 3 {
 			availableHeight = 3
 		}
-		m.filePath.SetHeight(availableHeight)
+		m.AvailableHeight = availableHeight
+		// m.filePath.SetHeight(availableHeight)
 		return m, nil
 
 	case tea.KeyMsg:
