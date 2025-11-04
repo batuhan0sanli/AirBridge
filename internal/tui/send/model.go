@@ -31,10 +31,8 @@ type Model struct {
 	rawPublicKey string
 	publicKey    *rsa.PublicKey
 	userText     string
-	//width           int
-	//height          int
-	//availableHeight int
-	err error
+	statusText   string
+	err          error
 }
 
 func InitialModel() *Model {
