@@ -18,7 +18,6 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
-
 		m.Width = msg.Width
 		m.Height = msg.Height
 
@@ -31,7 +30,6 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			availableHeight = 3
 		}
 		m.AvailableHeight = availableHeight
-		// m.filePath.SetHeight(availableHeight)
 		return m, nil
 
 	case tea.KeyMsg:
