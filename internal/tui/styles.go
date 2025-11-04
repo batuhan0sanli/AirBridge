@@ -106,7 +106,7 @@ func Footer(err error) string {
 	return view
 }
 
-func View(window Window, err error, view string) string {
+func View(err error, view string) string {
 	banner := Header()
 	footer := Footer(err)
 	return lipgloss.JoinVertical(lipgloss.Left, banner, view, footer)
