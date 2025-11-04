@@ -9,7 +9,7 @@ import (
 
 func (m *Model) Init() tea.Cmd {
 	m.nextStep()
-	return m.filePath.Init()
+	return m.filepicker.Init()
 }
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -56,7 +56,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		//case "enter":
 		//	//switch m.step {
 		//	//case StepAwaitingFile:
-		//	//	m.filePath, cmd = m.filePath.Update(msg)
+		//	//	m.filepicker, cmd = m.filepicker.Update(msg)
 		//	//}
 		//
 		//	// Todo: Buraya ayrıca Main Logic Eklenecek. Readying kısımları vs.
@@ -78,8 +78,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch m.step {
 	case StepAwaitingFile:
-		m.filePath, cmd = m.filePath.Update(msg)
-		if didSelect, path := m.filePath.DidSelectFile(msg); didSelect {
+		m.filepicker, cmd = m.filepicker.Update(msg)
+		if didSelect, path := m.filepicker.DidSelectFile(msg); didSelect {
 			m.selectedFile = path
 			m.statusText = "Opening file"
 			m.step = StepReadyingFile

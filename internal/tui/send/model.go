@@ -24,7 +24,7 @@ const (
 type Model struct {
 	tui.Window
 	step         Step
-	filePath     filepicker.Model
+	filepicker   filepicker.Model
 	selectedFile string
 	file         *os.File
 	fileMetadata pkg.FileMetadata
@@ -36,22 +36,22 @@ type Model struct {
 }
 
 func InitialModel() *Model {
-	filePath := filepicker.New()
+	fp := filepicker.New()
 	// current_path := pkg.GetCurrentDirectory()
 	//_, err := os.Getwd()
 	//if err != nil {
 	//	log.Fatalf("Çalışma dizini alınamadı: %v", err)
 	//}
-	// filePath.CurrentDirectory = cwd
+	// filepicker.CurrentDirectory = cwd
 
 	// Todo: Add styles
 	styles := filepicker.DefaultStyles()
-	filePath.Styles = styles
+	fp.Styles = styles
 
 	window := tui.Window{}
 	err := tui.ErrTest
 
-	return &Model{Window: window, step: StepUndefined, filePath: filePath, err: err}
+	return &Model{Window: window, step: StepUndefined, filepicker: fp, err: err}
 }
 
 func (m *Model) nextStep() {

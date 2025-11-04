@@ -9,8 +9,8 @@ func (m *Model) View() string {
 	case StepUndefined:
 		return tui.View(m.err, "")
 	case StepAwaitingFile:
-		m.filePath.SetHeight(m.AvailableHeight - 1)
-		view := m.filePath.View()
+		m.filepicker.SetHeight(m.AvailableHeight - 1)
+		view := m.filepicker.View()
 		return tui.View(m.err, view)
 	case StepReadyingFile:
 		input := "Readying file" + m.statusText
