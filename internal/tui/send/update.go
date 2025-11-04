@@ -17,6 +17,22 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 
+	case fileOpenedMsg:
+		m.file = msg.file
+		m.statusText = "Extracting metadata"
+		return m, extractMetadataCmd(m.file)
+
+	case metadataExtractedMsg:
+		m.fileMetadata = msg.metadata
+		m.statusText = ""
+		m.err = nil
+		m.nextStep()
+		return m, nil
+
+	case errMsg:
+		m.err = msg.error
+		return m, nil
+
 	case tea.WindowSizeMsg:
 		m.Width = msg.Width
 		m.Height = msg.Height
@@ -65,12 +81,17 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.filePath, cmd = m.filePath.Update(msg)
 		if didSelect, path := m.filePath.DidSelectFile(msg); didSelect {
 			m.selectedFile = path
-			m.nextStep()
+			m.statusText = "Opening file"
+			m.step = StepReadyingFile
+			return m, openFileCmd(path)
 		}
+	case StepReadyingFile:
+		// no-op; waiting for filePreparedMsg/errMsg
 
 	default:
 		// No default action
 	}
 
+	m.nextStep()
 	return m, cmd
 }

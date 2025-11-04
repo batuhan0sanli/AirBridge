@@ -13,7 +13,11 @@ func (m *Model) View() string {
 		view := m.filePath.View()
 		return tui.View(m.err, view)
 	case StepReadyingFile:
-		input := "Readying file"
+		input := "Readying file" + m.statusText
+		view := tui.MainStyle(m.Window).Render(input)
+		return tui.View(m.err, view)
+	case StepAwaitingPublicKey:
+		input := "Public Key"
 		view := tui.MainStyle(m.Window).Render(input)
 		return tui.View(m.err, view)
 	default:
