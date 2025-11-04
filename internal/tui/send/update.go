@@ -95,9 +95,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			)
 		}
 	case StepReadyingFile:
-		var sCmd tea.Cmd
-		m.spinner, sCmd = m.spinner.Update(msg)
-		return m, sCmd
+		m.spinner, cmd = m.spinner.Update(msg)
+		return m, cmd
 
 	default:
 		// No default action
