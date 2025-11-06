@@ -37,6 +37,11 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.nextStep()
 		return m, nil
 
+	case publicKeyProcessedMsg:
+		m.publicKey = msg.publicKey
+		m.nextStep()
+		return m, nil
+
 	case errMsg:
 		m.err = msg.error
 		return m, nil
@@ -64,14 +69,14 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyCtrlC, tea.KeyEsc:
 			return m, tea.Quit
-		case tea.KeyEnter:
-			switch m.step {
-			case StepAwaitingPublicKey:
-				m.rawPublicKey = m.textarea.Value()
-				m.textarea.Reset()
-				m.nextStep()
-			default:
-			}
+		//case tea.KeyEnter:
+		//	switch m.step {
+		//	case StepAwaitingPublicKey:
+		//		m.rawPublicKey = m.textarea.Value()
+		//		m.textarea.Reset()
+		//		m.nextStep()
+		//	default:
+		//	}
 
 		//case "enter":
 		//	//switch m.step {
@@ -102,7 +107,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if didSelect, path := m.filepicker.DidSelectFile(msg); didSelect {
 			m.selectedFile = path
 			m.statusText = "Opening file"
-			m.step = StepReadyingFile
+			m.nextStep()
 			return m, tea.Batch(
 				openFileCmd(path),
 				m.spinner.Tick,
@@ -113,6 +118,20 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	case StepAwaitingPublicKey:
 		m.textarea, cmd = m.textarea.Update(msg)
+		if msg, ok := msg.(tea.KeyMsg); ok && msg.Type == tea.KeyEnter {
+			rawPublicKey := m.textarea.Value()
+			m.rawPublicKey = rawPublicKey
+			m.textarea.Reset()
+			m.statusText = "Processing public key"
+			m.nextStep()
+			return m, tea.Batch(
+				processPublicKeyCmd(m.rawPublicKey),
+				m.spinner.Tick,
+			)
+		}
+		return m, cmd
+	case StepReadyingPublicKey:
+		m.spinner, cmd = m.spinner.Update(msg)
 		return m, cmd
 	default:
 		// No default action

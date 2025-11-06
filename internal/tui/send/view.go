@@ -28,6 +28,10 @@ func (m *Model) View() string {
 		view := lipgloss.JoinVertical(lipgloss.Left, text, "", input)
 		view = tui.MainStyle(m.Window).Render(view)
 		return tui.View(m.err, view)
+	case StepReadyingPublicKey:
+		input := m.spinner.View() + m.statusText
+		view := tui.MainStyle(m.Window).Render(input)
+		return tui.View(m.err, view)
 	default:
 		panic("unhandled default case")
 	}
