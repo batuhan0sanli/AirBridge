@@ -39,6 +39,19 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case publicKeyProcessedMsg:
 		m.publicKey = msg.publicKey
+		m.statusText = "Encrypting file"
+		m.err = nil
+		m.nextStep()
+		if m.step == StepEncryptingFile {
+			return m, tea.Batch(
+				encryptingFile(m.file, m.fileMetadata, m.publicKey),
+				m.spinner.Tick,
+			)
+		}
+		return m, nil
+
+	case smallFilePayloadMsg:
+		m.filePayload = msg.payload
 		m.nextStep()
 		return m, nil
 
@@ -133,10 +146,12 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case StepReadyingPublicKey:
 		m.spinner, cmd = m.spinner.Update(msg)
 		return m, cmd
+	case StepEncryptingFile:
+		m.spinner, cmd = m.spinner.Update(msg)
+		return m, cmd
 	default:
 		// No default action
 	}
-
-	m.nextStep()
+	//m.nextStep()
 	return m, cmd
 }

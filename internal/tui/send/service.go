@@ -2,10 +2,14 @@ package send
 
 import (
 	"AirBridge/pkg"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/json"
 	"encoding/pem"
 	"fmt"
 	"io"
@@ -64,14 +68,68 @@ func decodePublicKey(pubKeyStr string) (*rsa.PublicKey, error) {
 		return nil, fmt.Errorf("the provided key is not an RSA public key")
 	}
 
-	fmt.Println("Public key successfully parsed.")
 	return rsaPublicKey, nil
+}
+
+func encryptFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.PublicKey) (string, error) {
+	// 5. Şifreleme işlemi (AES-256 için rastgele anahtar oluştur)
+	aesKey := make([]byte, 32) // 32 byte = 256 bit
+	if _, err := rand.Read(aesKey); err != nil {
+		return "", fmt.Errorf("Error: Could not generate symmetric key: %v\n", err)
+	}
+
+	// 6. PLACEHOLDER - AES anahtarını alıcının public key'i ile şifrele
+	// AES anahtarını, parse ettiğimiz rsaPublicKey ile şifrele.
+	// OAEP, modern ve güvenli bir padding standardıdır.
+	encryptedAESKey, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, aesKey, nil)
+	if err != nil {
+		return "", fmt.Errorf("Error: Could not encrypt symmetric key with public key: %v\n", err)
+	}
+
+	// AES şifre bloğunu oluştur
+	block, err := aes.NewCipher(aesKey)
+	if err != nil {
+		return "", fmt.Errorf("Error: Could not create AES cipher: %v\n", err)
+	}
+
+	// IV (Initialization Vector) oluştur
+	iv := make([]byte, aes.BlockSize)
+	if _, err := rand.Read(iv); err != nil {
+		return "", fmt.Errorf("Error: Could not generate IV: %v\n", err)
+	}
+
+	fileBytes, err := io.ReadAll(file)
+	if err != nil {
+		return "", fmt.Errorf("Error reading small file into memory: %v\n", err)
+	}
+
+	// CTR stream ile şifreleme
+	stream := cipher.NewCTR(block, iv)
+	encryptedData := make([]byte, len(fileBytes))
+	stream.XORKeyStream(encryptedData, fileBytes)
+
+	// Make Payload
+	payload := pkg.SmallFilePayload{
+		Key:      string(encryptedAESKey),
+		Data:     fmt.Sprintf("%x", encryptedData),
+		IV:       fmt.Sprintf("%x", iv),
+		Metadata: metadata,
+	}
+
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		return "", fmt.Errorf("Error: Could not marshal JSON payload: %v\n", err)
+	}
+
+	encodedPayload := base64.StdEncoding.EncodeToString(jsonPayload)
+	return encodedPayload, nil
 }
 
 // message types for async workflow (split steps)
 type fileOpenedMsg struct{ file *os.File }
 type metadataExtractedMsg struct{ metadata pkg.FileMetadata }
 type publicKeyProcessedMsg struct{ publicKey *rsa.PublicKey }
+type smallFilePayloadMsg struct{ payload string }
 type errMsg struct{ error }
 
 // openFileCmd opens the file asynchronously
@@ -116,5 +174,19 @@ func processPublicKeyCmd(rawPublicKey string) tea.Cmd {
 			return errMsg{err}
 		}
 		return publicKeyProcessedMsg{publicKey: pubKey}
+	}
+}
+
+func encryptingFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.PublicKey) tea.Cmd {
+	return func() tea.Msg {
+		// debugging amaçlı bekleme komut fonksiyonu içinde olmalı ki UI bloklanmasın
+		time.Sleep(1 * time.Second)
+		fmt.Printf("encryptingFile")
+
+		encryptedPayload, err := encryptFile(file, metadata, publicKey)
+		if err != nil {
+			return errMsg{err}
+		}
+		return smallFilePayloadMsg{payload: encryptedPayload}
 	}
 }

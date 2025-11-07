@@ -30,14 +30,16 @@ type Model struct {
 
 	filepicker filepicker.Model
 	spinner    spinner.Model
+	textarea   textarea.Model
 
 	selectedFile string
 	file         *os.File
 	fileMetadata pkg.FileMetadata
 
-	textarea     textarea.Model
 	rawPublicKey string
 	publicKey    *rsa.PublicKey
+
+	filePayload string
 
 	statusText string
 	err        error
@@ -78,9 +80,9 @@ func (m *Model) nextStep() {
 		m.step = StepAwaitingPublicKey
 	} else if m.publicKey == nil {
 		m.step = StepReadyingPublicKey
-	} else if m.file != nil && m.publicKey != nil && m.step != StepReadyToSend {
+	} else if m.file != nil && m.publicKey != nil && m.filePayload == "" {
 		m.step = StepEncryptingFile
-	} else if m.file != nil && m.publicKey != nil && m.step == StepEncryptingFile {
+	} else if m.filePayload != "" {
 		m.step = StepReadyToSend
 	} else {
 		m.step = StepUndefined

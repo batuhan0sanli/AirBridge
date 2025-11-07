@@ -32,6 +32,10 @@ func (m *Model) View() string {
 		input := m.spinner.View() + m.statusText
 		view := tui.MainStyle(m.Window).Render(input)
 		return tui.View(m.err, view)
+	case StepEncryptingFile:
+		input := m.spinner.View() + "StepEncryptingFile" //m.statusText
+		view := tui.MainStyle(m.Window).Render(input)
+		return tui.View(m.err, view)
 	default:
 		panic("unhandled default case")
 	}
