@@ -36,6 +36,11 @@ func getMetadata(file *os.File) (pkg.FileMetadata, error) {
 	}
 	fileHash := hasher.Sum(nil)
 
+	// Dosya imlecini başa al, böylece sonraki okumalarda (ör. encryptFile) veri boş gelmez
+	if _, err := file.Seek(0, 0); err != nil {
+		return pkg.FileMetadata{}, err
+	}
+
 	return pkg.FileMetadata{
 		Name: fileInfo.Name(),
 		Size: fileInfo.Size(),
@@ -110,7 +115,7 @@ func encryptFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.Public
 
 	// Make Payload
 	payload := pkg.SmallFilePayload{
-		Key:      string(encryptedAESKey),
+		Key:      fmt.Sprintf("%x", encryptedAESKey),
 		Data:     fmt.Sprintf("%x", encryptedData),
 		IV:       fmt.Sprintf("%x", iv),
 		Metadata: metadata,
