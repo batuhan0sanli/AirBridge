@@ -3,6 +3,7 @@ package send
 import (
 	"AirBridge/internal/tui"
 
+	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -149,6 +150,16 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case StepEncryptingFile:
 		m.spinner, cmd = m.spinner.Update(msg)
 		return m, cmd
+	case StepReadyToSend:
+		if msg, ok := msg.(tea.KeyMsg); ok && msg.Type == tea.KeyEnter {
+			err := clipboard.WriteAll(m.filePayload)
+			if err != nil {
+				m.err = err
+				return m, nil
+			}
+			m.statusText = "File payload copied to clipboard. Exiting..."
+			return m, nil
+		}
 	default:
 		// No default action
 	}
