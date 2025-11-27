@@ -85,3 +85,7 @@ func (m *Model) nextStep() {
 		m.step = StepUndefined
 	}
 }
+
+func (m *Model) resetError() {
+	m.err = nil
+}

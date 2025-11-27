@@ -121,6 +121,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if didSelect, path := m.filepicker.DidSelectFile(msg); didSelect {
 			m.selectedFile = path
 			m.statusText = "Opening file"
+			m.resetError()
 			m.nextStep()
 			return m, tea.Batch(
 				openFileCmd(path),
@@ -129,6 +130,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case StepReadyingFile:
 		m.spinner, cmd = m.spinner.Update(msg)
+		m.resetError()
 		return m, cmd
 	case StepAwaitingPublicKey:
 		m.textarea, cmd = m.textarea.Update(msg)
@@ -137,6 +139,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.rawPublicKey = rawPublicKey
 			m.textarea.Reset()
 			m.statusText = "Processing public key"
+			m.resetError()
 			m.nextStep()
 			return m, tea.Batch(
 				processPublicKeyCmd(m.rawPublicKey, m.file, m.fileMetadata),
@@ -146,9 +149,11 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	case StepReadyingPublicKey:
 		m.spinner, cmd = m.spinner.Update(msg)
+		m.resetError()
 		return m, cmd
 
 	case StepReadyToSend:
+		m.resetError()
 		if msg, ok := msg.(tea.KeyMsg); ok && msg.Type == tea.KeyEnter {
 			err := clipboard.WriteAll(m.filePayload)
 			if err != nil {
