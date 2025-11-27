@@ -38,19 +38,6 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.nextStep()
 		return m, nil
 
-	case publicKeyProcessedMsg:
-		m.publicKey = msg.publicKey
-		m.statusText = "Encrypting file"
-		m.err = nil
-		m.nextStep()
-		if m.step == StepEncryptingFile {
-			return m, tea.Batch(
-				encryptingFile(m.file, m.fileMetadata, m.publicKey),
-				m.spinner.Tick,
-			)
-		}
-		return m, nil
-
 	case smallFilePayloadMsg:
 		m.filePayload = msg.payload
 		m.nextStep()
@@ -58,6 +45,11 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case errMsg:
 		m.err = msg.error
+		if m.step == StepReadyingPublicKey {
+			m.rawPublicKey = ""
+			m.publicKey = nil
+			m.nextStep()
+		}
 		return m, nil
 
 	case tea.WindowSizeMsg:
@@ -139,7 +131,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.statusText = "Processing public key"
 			m.nextStep()
 			return m, tea.Batch(
-				processPublicKeyCmd(m.rawPublicKey),
+				processPublicKeyCmd(m.rawPublicKey, m.file, m.fileMetadata),
 				m.spinner.Tick,
 			)
 		}
@@ -147,9 +139,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case StepReadyingPublicKey:
 		m.spinner, cmd = m.spinner.Update(msg)
 		return m, cmd
-	case StepEncryptingFile:
-		m.spinner, cmd = m.spinner.Update(msg)
-		return m, cmd
+
 	case StepReadyToSend:
 		if msg, ok := msg.(tea.KeyMsg); ok && msg.Type == tea.KeyEnter {
 			err := clipboard.WriteAll(m.filePayload)

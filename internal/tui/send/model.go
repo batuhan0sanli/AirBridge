@@ -20,7 +20,6 @@ const (
 	StepReadyingFile
 	StepAwaitingPublicKey
 	StepReadyingPublicKey
-	StepEncryptingFile
 	StepReadyToSend
 )
 
@@ -78,12 +77,10 @@ func (m *Model) nextStep() {
 		m.step = StepReadyingFile
 	} else if m.rawPublicKey == "" {
 		m.step = StepAwaitingPublicKey
-	} else if m.publicKey == nil {
-		m.step = StepReadyingPublicKey
-	} else if m.file != nil && m.publicKey != nil && m.filePayload == "" {
-		m.step = StepEncryptingFile
 	} else if m.filePayload != "" {
 		m.step = StepReadyToSend
+	} else if m.publicKey == nil || m.file != nil && m.publicKey != nil && m.filePayload == "" {
+		m.step = StepReadyingPublicKey
 	} else {
 		m.step = StepUndefined
 	}

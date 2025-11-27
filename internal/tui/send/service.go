@@ -133,7 +133,7 @@ func encryptFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.Public
 // message types for async workflow (split steps)
 type fileOpenedMsg struct{ file *os.File }
 type metadataExtractedMsg struct{ metadata pkg.FileMetadata }
-type publicKeyProcessedMsg struct{ publicKey *rsa.PublicKey }
+
 type smallFilePayloadMsg struct{ payload string }
 type errMsg struct{ error }
 
@@ -169,7 +169,7 @@ func extractMetadataCmd(file *os.File) tea.Cmd {
 	}
 }
 
-func processPublicKeyCmd(rawPublicKey string) tea.Cmd {
+func processPublicKeyCmd(rawPublicKey string, file *os.File, metadata pkg.FileMetadata) tea.Cmd {
 	return func() tea.Msg {
 		time.Sleep(1 * time.Second)
 
@@ -177,15 +177,8 @@ func processPublicKeyCmd(rawPublicKey string) tea.Cmd {
 		if err != nil {
 			return errMsg{err}
 		}
-		return publicKeyProcessedMsg{publicKey: pubKey}
-	}
-}
 
-func encryptingFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.PublicKey) tea.Cmd {
-	return func() tea.Msg {
-		time.Sleep(1 * time.Second)
-
-		encryptedPayload, err := encryptFile(file, metadata, publicKey)
+		encryptedPayload, err := encryptFile(file, metadata, pubKey)
 		if err != nil {
 			return errMsg{err}
 		}
