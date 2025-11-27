@@ -171,7 +171,6 @@ func extractMetadataCmd(file *os.File) tea.Cmd {
 
 func processPublicKeyCmd(rawPublicKey string) tea.Cmd {
 	return func() tea.Msg {
-		// debugging amaçlı bekleme komut fonksiyonu içinde olmalı ki UI bloklanmasın
 		time.Sleep(1 * time.Second)
 
 		pubKey, err := decodePublicKey(rawPublicKey)
@@ -184,9 +183,7 @@ func processPublicKeyCmd(rawPublicKey string) tea.Cmd {
 
 func encryptingFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.PublicKey) tea.Cmd {
 	return func() tea.Msg {
-		// debugging amaçlı bekleme komut fonksiyonu içinde olmalı ki UI bloklanmasın
 		time.Sleep(1 * time.Second)
-		fmt.Printf("encryptingFile")
 
 		encryptedPayload, err := encryptFile(file, metadata, publicKey)
 		if err != nil {
