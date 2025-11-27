@@ -51,7 +51,6 @@ func InitialModel() *Model {
 	fp.Styles = styles
 
 	window := tui.Window{}
-	err := tui.ErrTest
 
 	s := spinner.New()
 	s.Spinner = spinner.Dot
@@ -67,7 +66,7 @@ func InitialModel() *Model {
 		spinner:    s,
 		filepicker: fp,
 		textarea:   ta,
-		err:        err}
+		err:        nil}
 }
 
 func (m *Model) nextStep() {
