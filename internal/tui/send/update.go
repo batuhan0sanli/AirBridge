@@ -2,6 +2,7 @@ package send
 
 import (
 	"AirBridge/internal/tui"
+	"AirBridge/pkg"
 
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/textarea"
@@ -45,11 +46,18 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case errMsg:
 		m.err = msg.error
-		if m.step == StepReadyingPublicKey {
+		switch m.step {
+		case StepReadyingPublicKey:
 			m.rawPublicKey = ""
 			m.publicKey = nil
-			m.nextStep()
+		case StepReadyingFile:
+			m.selectedFile = ""
+			m.file = nil
+			m.fileMetadata = pkg.FileMetadata{}
+		default:
+			// No default action
 		}
+		m.nextStep()
 		return m, nil
 
 	case tea.WindowSizeMsg:
