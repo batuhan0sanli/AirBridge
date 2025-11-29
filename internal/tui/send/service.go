@@ -1,16 +1,11 @@
 package send
 
 import (
+	"AirBridge/internal/crypto"
 	"AirBridge/pkg"
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha256"
-	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
-	"encoding/pem"
 	"fmt"
 	"io"
 	"os"
@@ -25,81 +20,36 @@ func getMetadata(file *os.File) (pkg.FileMetadata, error) {
 		return pkg.FileMetadata{}, err
 	}
 
-	_, err = file.Seek(0, 0)
+	fileHash, err := crypto.CalculateFileHash(file)
 	if err != nil {
-		return pkg.FileMetadata{}, err
-	}
-
-	hasher := sha256.New()
-	if _, err := io.Copy(hasher, file); err != nil {
-		return pkg.FileMetadata{}, err
-	}
-	fileHash := hasher.Sum(nil)
-
-	// Dosya imlecini başa al, böylece sonraki okumalarda (ör. encryptFile) veri boş gelmez
-	if _, err := file.Seek(0, 0); err != nil {
 		return pkg.FileMetadata{}, err
 	}
 
 	return pkg.FileMetadata{
 		Name: fileInfo.Name(),
 		Size: fileInfo.Size(),
-		Hash: fmt.Sprintf("%x", fileHash),
+		Hash: fileHash,
 	}, nil
-}
-
-func decodePublicKey(pubKeyStr string) (*rsa.PublicKey, error) {
-	// Base64 decode et
-	pemBytes, err := base64.StdEncoding.DecodeString(pubKeyStr)
-	if err != nil {
-		return nil, fmt.Errorf("could not decode base64 public key: %v", err)
-	}
-
-	// 1. PEM bloğunu metinden çöz
-	pemBlock, _ := pem.Decode([]byte(pemBytes))
-	if pemBlock == nil {
-		return nil, fmt.Errorf("could not decode PEM block")
-	}
-
-	// 2. PEM bloğunu x509 (PKIX) formatından Go'nun anlayacağı public key formatına çevir
-	genericPublicKey, err := x509.ParsePKIXPublicKey(pemBlock.Bytes)
-	if err != nil {
-		return nil, err
-	}
-
-	// 3. Anahtarın bir RSA public key olduğunu doğrula
-	rsaPublicKey, ok := genericPublicKey.(*rsa.PublicKey)
-	if !ok {
-		return nil, fmt.Errorf("the provided key is not an RSA public key")
-	}
-
-	return rsaPublicKey, nil
 }
 
 func encryptFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.PublicKey) (string, error) {
 	// 5. Şifreleme işlemi (AES-256 için rastgele anahtar oluştur)
-	aesKey := make([]byte, 32) // 32 byte = 256 bit
-	if _, err := rand.Read(aesKey); err != nil {
+	aesKey, err := crypto.GenerateAESKey()
+	if err != nil {
 		return "", fmt.Errorf("Error: Could not generate symmetric key: %v\n", err)
 	}
 
 	// 6. PLACEHOLDER - AES anahtarını alıcının public key'i ile şifrele
 	// AES anahtarını, parse ettiğimiz rsaPublicKey ile şifrele.
 	// OAEP, modern ve güvenli bir padding standardıdır.
-	encryptedAESKey, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, aesKey, nil)
+	encryptedAESKey, err := crypto.EncryptAESKeyWithRSA(publicKey, aesKey)
 	if err != nil {
 		return "", fmt.Errorf("Error: Could not encrypt symmetric key with public key: %v\n", err)
 	}
 
-	// AES şifre bloğunu oluştur
-	block, err := aes.NewCipher(aesKey)
-	if err != nil {
-		return "", fmt.Errorf("Error: Could not create AES cipher: %v\n", err)
-	}
-
 	// IV (Initialization Vector) oluştur
-	iv := make([]byte, aes.BlockSize)
-	if _, err := rand.Read(iv); err != nil {
+	iv, err := crypto.GenerateIV()
+	if err != nil {
 		return "", fmt.Errorf("Error: Could not generate IV: %v\n", err)
 	}
 
@@ -109,9 +59,10 @@ func encryptFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.Public
 	}
 
 	// CTR stream ile şifreleme
-	stream := cipher.NewCTR(block, iv)
-	encryptedData := make([]byte, len(fileBytes))
-	stream.XORKeyStream(encryptedData, fileBytes)
+	encryptedData, err := crypto.EncryptDataAES(aesKey, iv, fileBytes)
+	if err != nil {
+		return "", fmt.Errorf("Error: Could not encrypt data: %v\n", err)
+	}
 
 	// Make Payload
 	payload := pkg.SmallFilePayload{
@@ -173,7 +124,7 @@ func processPublicKeyCmd(rawPublicKey string, file *os.File, metadata pkg.FileMe
 	return func() tea.Msg {
 		time.Sleep(1 * time.Second)
 
-		pubKey, err := decodePublicKey(rawPublicKey)
+		pubKey, err := crypto.DecodeRSAPublicKey(rawPublicKey)
 		if err != nil {
 			return errMsg{err}
 		}
