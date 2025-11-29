@@ -37,15 +37,9 @@ func (m *Model) View() string {
 		if text == "" {
 			text = "Press enter to copy payload to clipboard."
 		}
-		// Payloads first and last 10 characters
 		payloadText := m.filePayload[0:10] + "..." + m.filePayload[len(m.filePayload)-10:]
 		input := text + "\n\nPayload: " + payloadText
-		view := lipgloss.NewStyle().
-			Height(m.AvailableHeight).
-			MaxHeight(m.AvailableHeight).
-			Width(m.Width).
-			MaxWidth(m.Width).
-			Render(input)
+		view := tui.MainStyle(m.Window).Render(input)
 		return tui.View(m.err, view)
 	default:
 		panic("unhandled default case")
