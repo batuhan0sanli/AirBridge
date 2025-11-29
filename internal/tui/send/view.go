@@ -48,5 +48,5 @@ func (m *Model) View() string {
 	default:
 		panic("unhandled default case")
 	}
-	return ""
+
 }
