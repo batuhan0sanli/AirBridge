@@ -41,6 +41,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case smallFilePayloadMsg:
 		m.filePayload = msg.payload
+		m.statusText = ""
+		m.err = nil
 		m.nextStep()
 		return m, nil
 
@@ -160,7 +162,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.err = err
 				return m, nil
 			}
-			m.statusText = "File payload copied to clipboard. Exiting..."
+			m.statusText = lipgloss.NewStyle().Foreground(lipgloss.Color("#00ff00")).Render("File payload copied to clipboard.") + "\nPress esc to close..."
 			return m, nil
 		}
 	default:

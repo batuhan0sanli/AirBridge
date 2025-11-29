@@ -32,9 +32,12 @@ func (m *Model) View() string {
 		input := m.spinner.View() + m.statusText
 		view := tui.MainStyle(m.Window).Render(input)
 		return tui.View(m.err, view)
-
 	case StepReadyToSend:
-		input := "Finish: " + m.filePayload
+		text := m.statusText
+		if text == "" {
+			text = "Press enter to copy payload to clipboard."
+		}
+		input := text + "\n\nPayload:\n" + m.filePayload
 		view := lipgloss.NewStyle().
 			Height(m.AvailableHeight).
 			MaxHeight(m.AvailableHeight).
