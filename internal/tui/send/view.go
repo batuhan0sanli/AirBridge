@@ -37,7 +37,9 @@ func (m *Model) View() string {
 		if text == "" {
 			text = "Press enter to copy payload to clipboard."
 		}
-		input := text + "\n\nPayload:\n" + m.filePayload
+		// Payloads first and last 10 characters
+		payloadText := m.filePayload[0:10] + "..." + m.filePayload[len(m.filePayload)-10:]
+		input := text + "\n\nPayload: " + payloadText
 		view := lipgloss.NewStyle().
 			Height(m.AvailableHeight).
 			MaxHeight(m.AvailableHeight).

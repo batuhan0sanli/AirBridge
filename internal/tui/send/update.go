@@ -162,7 +162,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.err = err
 				return m, nil
 			}
-			m.statusText = lipgloss.NewStyle().Foreground(lipgloss.Color("#00ff00")).Render("File payload copied to clipboard.") + "\nPress esc to close..."
+			m.statusText = lipgloss.NewStyle().Foreground(lipgloss.Color("#00ff00")).Render("File payload copied to clipboard.")
 			return m, nil
 		}
 	default:
