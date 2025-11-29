@@ -159,10 +159,11 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg, ok := msg.(tea.KeyMsg); ok && msg.Type == tea.KeyEnter {
 			err := clipboard.WriteAll(m.filePayload)
 			if err != nil {
+				// Todo: toggle payload visibility
 				m.err = err
 				return m, nil
 			}
-			m.statusText = lipgloss.NewStyle().Foreground(lipgloss.Color("#00ff00")).Render("File payload copied to clipboard.")
+			m.statusText = tui.SuccessStyle.Render("File payload copied to clipboard.")
 			return m, nil
 		}
 	default:
