@@ -44,7 +44,7 @@ type Model struct {
 	err        error
 }
 
-func InitialModel() *Model {
+func InitialModel(initialFile string) *Model {
 	fp := filepicker.New()
 	// Todo: Add styles
 	styles := filepicker.DefaultStyles()
@@ -60,13 +60,15 @@ func InitialModel() *Model {
 	ta.Placeholder = "Paste Base64 encoded public key here ..."
 	ta.ShowLineNumbers = false
 	ta.Focus()
+
 	return &Model{
-		Window:     window,
-		step:       StepUndefined,
-		spinner:    s,
-		filepicker: fp,
-		textarea:   ta,
-		err:        nil}
+		Window:       window,
+		step:         StepUndefined,
+		spinner:      s,
+		filepicker:   fp,
+		textarea:     ta,
+		selectedFile: initialFile,
+		err:          nil}
 }
 
 func (m *Model) nextStep() {

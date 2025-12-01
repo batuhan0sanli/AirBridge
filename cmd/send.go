@@ -14,13 +14,19 @@ import (
 
 // sendCmd represents the send command
 var sendCmd = &cobra.Command{
-	Use:   "send",
+	Use:   "send [file]",
 	Short: "Send a file securely.",
 	Long: `Starts an interactive session to send a file.
 It allows you to select a file, encrypt it with a recipient's public key,
-and generates the encrypted payload.`,
+and generates the encrypted payload.
+
+You can optionally provide a file path as an argument to skip the file selection step.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		p := tea.NewProgram(send.InitialModel(), tea.WithAltScreen())
+		var initialFile string
+		if len(args) > 0 {
+			initialFile = args[0]
+		}
+		p := tea.NewProgram(send.InitialModel(initialFile), tea.WithAltScreen())
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)

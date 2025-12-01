@@ -12,11 +12,15 @@ import (
 
 func (m *Model) Init() tea.Cmd {
 	m.nextStep()
-	return tea.Batch(
-		m.filepicker.Init(),
-		m.spinner.Tick,
-		textarea.Blink,
-	)
+	var cmds []tea.Cmd
+	cmds = append(cmds, m.filepicker.Init(), m.spinner.Tick, textarea.Blink)
+
+	if m.selectedFile != "" {
+		m.statusText = "Opening file"
+		cmds = append(cmds, openFileCmd(m.selectedFile))
+	}
+
+	return tea.Batch(cmds...)
 }
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
