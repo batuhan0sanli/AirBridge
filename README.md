@@ -2,7 +2,8 @@
 
 ![AirBridgeMain.jpg](assets/AirBridgeMain.jpg)
 
-![GitHub Release](https://img.shields.io/github/v/release/batuhan0sanli/AirBridge?style=for-the-badge&color=blue)
+![GitHub Release](https://img.shields.io/github/v/release/batuhan0sanli/AirBridge?color=blue)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/batuhan0sanli/AirBridge/release.yml)
 
 **Secure, serverless file transfer right from your terminal.**
 
