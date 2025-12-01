@@ -48,7 +48,7 @@ sudo mv airbridge /usr/local/bin/
 **Using Scoop (Recommended):**
 
 ```powershell
-scoop bucket add airbridge [https://github.com/batuhan0sanli/scoop-bucket](https://github.com/batuhan0sanli/scoop-bucket)
+scoop bucket add airbridge https://github.com/batuhan0sanli/scoop-bucket
 scoop install airbridge
 ```
 
