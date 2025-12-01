@@ -47,6 +47,9 @@ var (
 
 	WarningStyle = lipgloss.NewStyle().
 			Foreground(WarningColor)
+
+	SubtleStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("241"))
 )
 
 func asciiTitle() string {
