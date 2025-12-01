@@ -1,6 +1,6 @@
 # AirBridge
 
-![AirBridge](/assets/AirBridgeMain.png)
+![AirBridgeMain.jpg](assets/AirBridgeMain.jpg)
 
 ![GitHub Release](https://img.shields.io/github/v/release/batuhan0sanli/AirBridge?style=for-the-badge&color=blue)
 
@@ -18,6 +18,8 @@ text (chat apps, email, pastebins, etc.) without trusting the intermediary.
 - **💻 Cross-Platform:** Works on macOS, Linux, and Windows.
 - **✨ Beautiful TUI:** Built with [Bubble Tea](https://github.com/charmbracelet/bubbletea) for a delightful interactive
   experience.
+
+![AirBridgeAnimation.gif](assets/AirBridgeAnimation.gif)
 
 ## 🛠 Installation
 
