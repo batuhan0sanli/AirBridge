@@ -69,7 +69,3 @@ func (m *Model) nextStep() {
 		m.step = StepSuccess
 	}
 }
-
-func (m *Model) resetError() {
-	m.err = nil
-}

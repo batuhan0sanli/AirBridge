@@ -16,7 +16,7 @@ func TestCalculateFileHash(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Remove(tmpfile.Name()) // clean up
+	defer func() { _ = os.Remove(tmpfile.Name()) }() // clean up
 
 	content := []byte("hello world")
 	if _, err := tmpfile.Write(content); err != nil {

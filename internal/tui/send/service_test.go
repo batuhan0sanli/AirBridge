@@ -15,13 +15,15 @@ func TestGetMetadata(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp file: %v", err)
 	}
-	defer os.Remove(tmpFile.Name())
+	defer func() { _ = os.Remove(tmpFile.Name()) }()
 
 	content := []byte("test content")
 	if _, err := tmpFile.Write(content); err != nil {
 		t.Fatalf("Failed to write to temp file: %v", err)
 	}
-	tmpFile.Seek(0, 0)
+	if _, err := tmpFile.Seek(0, 0); err != nil {
+		t.Fatalf("Failed to seek temp file: %v", err)
+	}
 
 	metadata, err := getMetadata(tmpFile)
 	if err != nil {
@@ -53,13 +55,15 @@ func TestEncryptFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp file: %v", err)
 	}
-	defer os.Remove(tmpFile.Name())
+	defer func() { _ = os.Remove(tmpFile.Name()) }()
 
 	content := []byte("secret data")
 	if _, err := tmpFile.Write(content); err != nil {
 		t.Fatalf("Failed to write to temp file: %v", err)
 	}
-	tmpFile.Seek(0, 0)
+	if _, err := tmpFile.Seek(0, 0); err != nil {
+		t.Fatalf("Failed to seek temp file: %v", err)
+	}
 
 	metadata := pkg.FileMetadata{
 		Name: "testfile.txt",

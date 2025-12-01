@@ -35,7 +35,7 @@ func encryptFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.Public
 	// 5. Encryption process (Generate random key for AES-256)
 	aesKey, err := crypto.GenerateAESKey()
 	if err != nil {
-		return "", fmt.Errorf("Error: Could not generate symmetric key: %v\n", err)
+		return "", fmt.Errorf("could not generate symmetric key: %v", err)
 	}
 
 	// 6. Encrypt AES key with recipient's public key
@@ -43,24 +43,24 @@ func encryptFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.Public
 	// OAEP is a modern and secure padding standard.
 	encryptedAESKey, err := crypto.EncryptAESKeyWithRSA(publicKey, aesKey)
 	if err != nil {
-		return "", fmt.Errorf("Error: Could not encrypt symmetric key with public key: %v\n", err)
+		return "", fmt.Errorf("could not encrypt symmetric key with public key: %v", err)
 	}
 
 	// Generate IV (Initialization Vector)
 	iv, err := crypto.GenerateIV()
 	if err != nil {
-		return "", fmt.Errorf("Error: Could not generate IV: %v\n", err)
+		return "", fmt.Errorf("could not generate IV: %v", err)
 	}
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
-		return "", fmt.Errorf("Error reading small file into memory: %v\n", err)
+		return "", fmt.Errorf("error reading small file into memory: %v", err)
 	}
 
 	// Encrypt with CTR stream
 	encryptedData, err := crypto.EncryptDataAES(aesKey, iv, fileBytes)
 	if err != nil {
-		return "", fmt.Errorf("Error: Could not encrypt data: %v\n", err)
+		return "", fmt.Errorf("could not encrypt data: %v", err)
 	}
 
 	// Make Payload
@@ -73,7 +73,7 @@ func encryptFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.Public
 
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
-		return "", fmt.Errorf("Error: Could not marshal JSON payload: %v\n", err)
+		return "", fmt.Errorf("could not marshal JSON payload: %v", err)
 	}
 
 	encodedPayload := base64.StdEncoding.EncodeToString(jsonPayload)

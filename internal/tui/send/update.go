@@ -75,7 +75,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		headerW := lipgloss.Width(tui.Header())
 		spacer := 0
 
-		availableHeight := m.Window.Height - (headerH + footerH + spacer)
+		availableHeight := m.Height - (headerH + footerH + spacer)
 		if availableHeight < 3 {
 			availableHeight = 3
 		}

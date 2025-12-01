@@ -103,7 +103,9 @@ func TestDecryptAndSaveCmd(t *testing.T) {
 	}
 
 	// Cleanup
-	os.Remove("test_decrypted.txt")
+	if err := os.Remove("test_decrypted.txt"); err != nil {
+		t.Logf("Failed to remove test file: %v", err)
+	}
 }
 
 func TestDecryptAndSaveCmd_InvalidPayload(t *testing.T) {
