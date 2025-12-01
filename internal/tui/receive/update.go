@@ -37,6 +37,16 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case errMsg:
 		m.err = msg.error
 		m.statusText = ""
+		switch m.step {
+		case StepDecrypting:
+			m.payload = ""
+			m.textarea.Reset()
+		case StepGeneratingKey:
+			m.privateKey = nil
+			m.publicKey = nil
+			m.encodedKey = ""
+		}
+		m.nextStep()
 		return m, nil
 
 	case tea.WindowSizeMsg:
@@ -120,7 +130,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// Let's use the same logic as send module: Enter to submit if it was single line, but here it's base64 blob.
 			// Let's use Ctrl+S to save/start decryption?
-			if msg.Type == tea.KeyCtrlS {
+			if msg.Type == tea.KeyEnter {
 				m.payload = m.textarea.Value()
 				m.statusText = "Decrypting..."
 				m.nextStep()

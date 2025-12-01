@@ -29,7 +29,7 @@ func (m *Model) View() string {
 		m.textarea.SetHeight(10)
 		input := m.textarea.View()
 
-		inputHelp := tui.SubtleStyle.Render("Paste payload above and press 'Ctrl+S' to decrypt and save")
+		inputHelp := tui.SubtleStyle.Render("Paste payload above and press 'Enter' to decrypt and save")
 
 		view := lipgloss.JoinVertical(lipgloss.Left,
 			"Your Public Key:",
