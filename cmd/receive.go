@@ -16,9 +16,9 @@ import (
 var receiveCmd = &cobra.Command{
 	Use:   "receive",
 	Short: "Decrypts a file received from a sender.",
-	Long: `Starts an interactive session to decrypt a file.
+	Long: `Starts an interactive session to receive a file.
 It generates a temporary key pair for this session and displays the public key.
-You can then provide the encrypted text block or the path to a .abf file.`,
+You can then provide the encrypted text block.`, // or the path to a .abf file.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		p := tea.NewProgram(receive.InitialModel())
 		if _, err := p.Run(); err != nil {
