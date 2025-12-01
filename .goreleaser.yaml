@@ -23,12 +23,20 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
+
+    files:
+      - README.md
+      - LICENSE
+
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
+
+checksum:
+  name_template: 'checksums.txt'
 
 changelog:
   sort: asc
@@ -37,7 +45,7 @@ changelog:
       - '^docs:'
       - '^test:'
 
-# --- HOMEBREW SETTINGS ---
+# --- HOMEBREW (MACOS & LINUX) ---
 brews:
   - repository:
       owner: batuhan0sanli
@@ -46,8 +54,31 @@ brews:
     
     name: airbridge
     homepage: "https://github.com/batuhan0sanli/airbridge"
-    description: "AirBridge is a secure file transfer tool that uses RSA encryption to safely share files. It features a TUI (Terminal User Interface) for easy interaction."
+    description: "AirBridge is a secure file transfer tool that uses RSA encryption."
     license: "MIT"
     
     install: |
       bin.install "airbridge"
+
+# --- WINDOWS (SCOOP) ---
+scoops:
+  - repository:
+      owner: batuhan0sanli
+      name: scoop-bucket
+      token: "{{ .Env.GH_PAT }}"
+
+    name: airbridge
+    homepage: "https://github.com/batuhan0sanli/AirBridge"
+    description: "AirBridge is a secure file transfer tool that uses RSA encryption."
+    license: "MIT"
+
+# --- LINUX ---
+nfpms:
+  - file_name_template: '{{ .ProjectName }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+    homepage: https://github.com/batuhan0sanli/airbridge
+    maintainer: Batuhan Sanli <batuhansanli@gmail.com>
+    description: "AirBridge is a secure file transfer tool that uses RSA encryption."
+    license: "MIT"
+    formats:
+      - deb
+      - rpm
