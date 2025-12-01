@@ -20,6 +20,9 @@ test:
 clean:
 	rm -f $(APP_NAME)
 
+lint:
+	golangci-lint run ./...
+
 # Catch-all target to allow arguments like "send", "receive" to be passed to "run" without error
 %:
 	@:
