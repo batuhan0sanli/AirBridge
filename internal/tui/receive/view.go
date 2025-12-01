@@ -1,6 +1,7 @@
 package receive
 
 import (
+	"AirBridge/internal/strutil"
 	"AirBridge/internal/tui"
 
 	"github.com/charmbracelet/lipgloss"
@@ -15,7 +16,7 @@ func (m *Model) View() string {
 		view := tui.MainStyle(m.Window).Render(input)
 		return tui.View(m.err, view)
 	case StepAwaitingPayload:
-		encodedText := m.encodedKey[0:10] + " ... " + m.encodedKey[len(m.encodedKey)-10:]
+		encodedText := strutil.TruncateMiddle(m.encodedKey, 15)
 		// Public Key Section
 		keyView := lipgloss.NewStyle().
 			Padding(1).

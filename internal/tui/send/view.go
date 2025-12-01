@@ -1,6 +1,7 @@
 package send
 
 import (
+	"AirBridge/internal/strutil"
 	"AirBridge/internal/tui"
 
 	"github.com/charmbracelet/lipgloss"
@@ -37,7 +38,7 @@ func (m *Model) View() string {
 		if text == "" {
 			text = "Press enter to copy payload to clipboard."
 		}
-		payloadText := m.filePayload[0:10] + "..." + m.filePayload[len(m.filePayload)-10:]
+		payloadText := strutil.TruncateMiddle(m.filePayload, 15)
 		input := text + "\n\nPayload: " + payloadText
 		view := tui.MainStyle(m.Window).Render(input)
 		return tui.View(m.err, view)
