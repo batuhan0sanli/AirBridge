@@ -132,7 +132,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case StepReadyToSend:
 		m.resetError()
-		if msg, ok := msg.(tea.KeyMsg); ok && msg.Type == tea.KeyEnter {
+		if msg, ok := msg.(tea.KeyMsg); ok && msg.Type == tea.KeyCtrlK {
 			err := clipboard.WriteAll(m.filePayload)
 			if err != nil {
 				// TODO: toggle payload visibility

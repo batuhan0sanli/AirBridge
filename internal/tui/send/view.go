@@ -23,7 +23,7 @@ func (m *Model) View() string {
 		view := tui.MainStyle(m.Window).Render(input)
 		return tui.View(m.err, view)
 	case StepAwaitingPublicKey:
-		text := "Please paste the recipient's public key and press enter:"
+		text := "Please paste the recipient's public key and press 'Enter':"
 		m.textarea.SetWidth(m.AvailableWidth - 2) // -2 for the spacing
 		input := m.textarea.View()
 		view := lipgloss.JoinVertical(lipgloss.Left, text, "", input)
@@ -36,7 +36,7 @@ func (m *Model) View() string {
 	case StepReadyToSend:
 		text := m.statusText
 		if text == "" {
-			text = "Press enter to copy payload to clipboard."
+			text = "Press 'Ctrl+K' to copy payload to clipboard."
 		}
 		payloadText := strutil.TruncateMiddle(m.filePayload, 15)
 		input := text + "\n\nPayload: " + payloadText
