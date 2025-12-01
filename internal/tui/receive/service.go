@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -26,9 +25,6 @@ type errMsg struct{ error }
 
 func generateKeyCmd() tea.Cmd {
 	return func() tea.Msg {
-		// Simulate delay for better UX
-		time.Sleep(500 * time.Millisecond)
-
 		privateKey, publicKey, err := crypto.GenerateRSAKeyPair()
 		if err != nil {
 			return errMsg{err}
@@ -49,8 +45,6 @@ func generateKeyCmd() tea.Cmd {
 
 func decryptAndSaveCmd(payloadStr string, privateKey *rsa.PrivateKey) tea.Cmd {
 	return func() tea.Msg {
-		time.Sleep(1 * time.Second)
-
 		// 1. Parse Base64 payload
 		jsonPayloadBytes, err := base64.StdEncoding.DecodeString(payloadStr)
 		if err != nil {

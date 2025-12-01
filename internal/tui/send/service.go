@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -91,8 +90,6 @@ type errMsg struct{ error }
 // openFileCmd opens the file asynchronously
 func openFileCmd(path string) tea.Cmd {
 	return func() tea.Msg {
-		// debugging amaçlı bekleme komut fonksiyonu içinde olmalı ki UI bloklanmasın
-		time.Sleep(1 * time.Second)
 		if path == "" {
 			return errMsg{fmt.Errorf("empty file path")}
 		}
@@ -107,8 +104,6 @@ func openFileCmd(path string) tea.Cmd {
 // extractMetadataCmd extracts metadata asynchronously using an already opened file
 func extractMetadataCmd(file *os.File) tea.Cmd {
 	return func() tea.Msg {
-		// debugging amaçlı bekleme komut fonksiyonu içinde olmalı ki UI bloklanmasın
-		time.Sleep(1 * time.Second)
 		if file == nil {
 			return errMsg{fmt.Errorf("nil file")}
 		}
@@ -122,8 +117,6 @@ func extractMetadataCmd(file *os.File) tea.Cmd {
 
 func processPublicKeyCmd(rawPublicKey string, file *os.File, metadata pkg.FileMetadata) tea.Cmd {
 	return func() tea.Msg {
-		time.Sleep(1 * time.Second)
-
 		pubKey, err := crypto.DecodeRSAPublicKey(rawPublicKey)
 		if err != nil {
 			return errMsg{err}
