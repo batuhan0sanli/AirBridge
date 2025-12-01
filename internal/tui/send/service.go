@@ -32,21 +32,21 @@ func getMetadata(file *os.File) (pkg.FileMetadata, error) {
 }
 
 func encryptFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.PublicKey) (string, error) {
-	// 5. Şifreleme işlemi (AES-256 için rastgele anahtar oluştur)
+	// 5. Encryption process (Generate random key for AES-256)
 	aesKey, err := crypto.GenerateAESKey()
 	if err != nil {
 		return "", fmt.Errorf("Error: Could not generate symmetric key: %v\n", err)
 	}
 
-	// 6. PLACEHOLDER - AES anahtarını alıcının public key'i ile şifrele
-	// AES anahtarını, parse ettiğimiz rsaPublicKey ile şifrele.
-	// OAEP, modern ve güvenli bir padding standardıdır.
+	// 6. Encrypt AES key with recipient's public key
+	// Encrypt the AES key with the parsed rsaPublicKey.
+	// OAEP is a modern and secure padding standard.
 	encryptedAESKey, err := crypto.EncryptAESKeyWithRSA(publicKey, aesKey)
 	if err != nil {
 		return "", fmt.Errorf("Error: Could not encrypt symmetric key with public key: %v\n", err)
 	}
 
-	// IV (Initialization Vector) oluştur
+	// Generate IV (Initialization Vector)
 	iv, err := crypto.GenerateIV()
 	if err != nil {
 		return "", fmt.Errorf("Error: Could not generate IV: %v\n", err)
@@ -57,7 +57,7 @@ func encryptFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.Public
 		return "", fmt.Errorf("Error reading small file into memory: %v\n", err)
 	}
 
-	// CTR stream ile şifreleme
+	// Encrypt with CTR stream
 	encryptedData, err := crypto.EncryptDataAES(aesKey, iv, fileBytes)
 	if err != nil {
 		return "", fmt.Errorf("Error: Could not encrypt data: %v\n", err)

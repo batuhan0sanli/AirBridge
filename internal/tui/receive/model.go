@@ -36,6 +36,7 @@ type Model struct {
 	err        error
 }
 
+// InitialModel initializes the receive model with default values.
 func InitialModel() *Model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot

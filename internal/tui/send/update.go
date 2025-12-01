@@ -89,35 +89,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyCtrlC, tea.KeyEsc:
 			return m, tea.Quit
-		//case tea.KeyEnter:
-		//	switch m.step {
-		//	case StepAwaitingPublicKey:
-		//		m.rawPublicKey = m.textarea.Value()
-		//		m.textarea.Reset()
-		//		m.nextStep()
-		//	default:
-		//	}
-
-		//case "enter":
-		//	//switch m.step {
-		//	//case StepAwaitingFile:
-		//	//	m.filepicker, cmd = m.filepicker.Update(msg)
-		//	//}
-		//
-		//	// Todo: Buraya ayrıca Main Logic Eklenecek. Readying kısımları vs.
-		//	// Todo: Burada boş olması drumunda error msg gösterelim.
-		//	m.nextStep()
-		//	return m, nil
-
-		//case "backspace":
-		//	if len(m.userText) > 0 {
-		//		m.userText = m.userText[:len(m.userText)-1]
-		//	}
-
 		default:
-			//if len(msg.String()) == 1 {
-			//	m.userText += msg.String()
-			//}
 		}
 	}
 
@@ -163,7 +135,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg, ok := msg.(tea.KeyMsg); ok && msg.Type == tea.KeyEnter {
 			err := clipboard.WriteAll(m.filePayload)
 			if err != nil {
-				// Todo: toggle payload visibility
+				// TODO: toggle payload visibility
 				m.err = err
 				return m, nil
 			}
@@ -173,6 +145,5 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	default:
 		// No default action
 	}
-	//m.nextStep()
 	return m, cmd
 }

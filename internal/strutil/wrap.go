@@ -2,14 +2,15 @@ package strutil
 
 import "strings"
 
+// HardWrap wraps the text at the specified limit.
 func HardWrap(text string, limit int) string {
 	if len(text) <= limit {
 		return text
 	}
 
 	var chunks []string
-	// Rune slice kullanarak Unicode karakterlerde (emoji vb.) bozulmayı önleriz.
-	// Base64 genelde ASCII'dir ama alışkanlık olarak rune kullanmak iyidir.
+	// Using rune slice prevents corruption in Unicode characters (emojis etc.).
+	// Base64 is usually ASCII but using runes is a good habit.
 	runes := []rune(text)
 
 	for i := 0; i < len(runes); i += limit {

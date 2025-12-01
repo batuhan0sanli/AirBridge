@@ -44,9 +44,9 @@ type Model struct {
 	err        error
 }
 
+// InitialModel initializes the send model with default values.
 func InitialModel(initialFile string) *Model {
 	fp := filepicker.New()
-	// Todo: Add styles
 	styles := filepicker.DefaultStyles()
 	fp.Styles = styles
 

@@ -80,33 +80,6 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		case StepAwaitingPayload:
 			// Handle Copy Key
-			if msg.String() == "ctrl+c" {
-				// Already handled by global key? No, global is Ctrl+C for quit.
-				// Let's use a specific key for copy, e.g., 'c' or just Enter as requested.
-				// User request: "add a button to copy to clipboard".
-				// In TUI, we can use a key press. Let's use 'enter' to copy key if focus is not on textarea?
-				// Or maybe a specific key binding.
-				// But wait, we also need to paste the payload.
-				// Let's make it simple:
-				// Top part: Public Key. "Press 'c' to copy public key".
-				// Bottom part: Textarea.
-			}
-
-			// If user presses 'c' (and not typing in textarea?), copy key.
-			// But textarea captures input.
-			// We can check if textarea is focused.
-
-			// Actually, the user flow is:
-			// 1. Receive starts -> Generates Key -> Shows Key.
-			// 2. User copies key (Press Enter/c).
-			// 3. User sends key to sender.
-			// 4. Sender sends payload.
-			// 5. User pastes payload into textarea.
-			// 6. User presses Enter to decrypt.
-
-			// Let's use 'ctrl+y' to copy key to avoid conflict with typing?
-			// Or just a button if we had mouse support.
-			// Let's stick to: "Press 'ctrl+k' to copy public key".
 			if msg.Type == tea.KeyCtrlK {
 				err := clipboard.WriteAll(m.encodedKey)
 				if err != nil {
@@ -120,16 +93,6 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Handle Textarea input
 			m.textarea, cmd = m.textarea.Update(msg)
 
-			// Check for submit (Ctrl+Enter or Enter if single line? Payload is large, so likely multiline textarea)
-			// Textarea default is Enter for newline.
-			// Let's use Ctrl+Enter to submit.
-			if msg.Type == tea.KeyCtrlD { // Ctrl+D for EOF/Submit often used
-				// Or just check if payload is pasted?
-				// Let's use a specific key to "Process Payload".
-			}
-
-			// Let's use the same logic as send module: Enter to submit if it was single line, but here it's base64 blob.
-			// Let's use Ctrl+S to save/start decryption?
 			if msg.Type == tea.KeyEnter {
 				m.payload = m.textarea.Value()
 				m.statusText = "Decrypting..."

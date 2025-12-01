@@ -1,5 +1,6 @@
 package pkg
 
+// SmallFilePayload represents a payload for a small file.
 type SmallFilePayload struct {
 	Key      string       `json:"key"`
 	Data     string       `json:"data"`
@@ -7,7 +8,8 @@ type SmallFilePayload struct {
 	Metadata FileMetadata `json:"metadata"`
 }
 
-type largeFilePayload struct {
+// LargeFilePayload represents a payload for a large file chunk.
+type LargeFilePayload struct {
 	Key      string `json:"key"`
 	Name     string `json:"name"`
 	Hash     string `json:"hash"`
