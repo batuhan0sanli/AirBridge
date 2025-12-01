@@ -109,3 +109,76 @@ func TestRSAEncryption(t *testing.T) {
 		t.Error("Encrypted key is empty")
 	}
 }
+
+func TestGenerateAndEncodeRSAKeys(t *testing.T) {
+	// Test GenerateRSAKeyPair
+	privateKey, publicKey, err := GenerateRSAKeyPair()
+	if err != nil {
+		t.Fatalf("GenerateRSAKeyPair failed: %v", err)
+	}
+	if privateKey == nil || publicKey == nil {
+		t.Fatal("Generated keys are nil")
+	}
+
+	// Test EncodeRSAPublicKey
+	encodedKey, err := EncodeRSAPublicKey(publicKey)
+	if err != nil {
+		t.Fatalf("EncodeRSAPublicKey failed: %v", err)
+	}
+	if encodedKey == "" {
+		t.Error("Encoded key is empty")
+	}
+
+	// Verify we can decode it back
+	decodedKey, err := DecodeRSAPublicKey(encodedKey)
+	if err != nil {
+		t.Fatalf("DecodeRSAPublicKey failed: %v", err)
+	}
+
+	if decodedKey.N.Cmp(publicKey.N) != 0 || decodedKey.E != publicKey.E {
+		t.Error("Decoded key does not match original key")
+	}
+}
+
+func TestDecryptAESKeyWithRSA(t *testing.T) {
+	privateKey, publicKey, err := GenerateRSAKeyPair()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	aesKey := []byte("12345678901234567890123456789012")
+	encryptedKey, err := EncryptAESKeyWithRSA(publicKey, aesKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	decryptedKey, err := DecryptAESKeyWithRSA(privateKey, encryptedKey)
+	if err != nil {
+		t.Fatalf("DecryptAESKeyWithRSA failed: %v", err)
+	}
+
+	if string(decryptedKey) != string(aesKey) {
+		t.Errorf("Expected key %s, got %s", aesKey, decryptedKey)
+	}
+}
+
+func TestDecryptDataAES(t *testing.T) {
+	key, _ := GenerateAESKey()
+	iv, _ := GenerateIV()
+	data := []byte("test data for decryption wrapper")
+
+	encrypted, err := EncryptDataAES(key, iv, data)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Test the wrapper function
+	decrypted, err := DecryptDataAES(key, iv, encrypted)
+	if err != nil {
+		t.Fatalf("DecryptDataAES failed: %v", err)
+	}
+
+	if string(decrypted) != string(data) {
+		t.Errorf("Expected %s, got %s", data, decrypted)
+	}
+}

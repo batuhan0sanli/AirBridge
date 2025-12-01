@@ -38,3 +38,9 @@ func EncryptDataAES(key, iv, data []byte) ([]byte, error) {
 
 	return encryptedData, nil
 }
+
+// DecryptDataAES decrypts data using AES-CTR.
+// Since CTR mode is symmetric, encryption and decryption are the same operation.
+func DecryptDataAES(key, iv, data []byte) ([]byte, error) {
+	return EncryptDataAES(key, iv, data)
+}
