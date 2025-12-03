@@ -117,3 +117,77 @@ func TestDecryptAndSaveCmd_InvalidPayload(t *testing.T) {
 		t.Error("Expected errMsg for invalid payload")
 	}
 }
+
+func TestDecryptAndSaveCmd_PathTraversal(t *testing.T) {
+	// 1. Generate keys
+	privKey, pubKey, err := crypto.GenerateRSAKeyPair()
+	if err != nil {
+		t.Fatalf("Failed to generate keys: %v", err)
+	}
+
+	// 2. Prepare encrypted payload with malicious filename
+	originalData := []byte("safe content")
+
+	// Manually construct payload to inject malicious name
+	aesKey, err := crypto.GenerateAESKey()
+	if err != nil {
+		t.Fatalf("Failed to generate AES key: %v", err)
+	}
+
+	encryptedAESKey, err := crypto.EncryptAESKeyWithRSA(pubKey, aesKey)
+	if err != nil {
+		t.Fatalf("Failed to encrypt AES key: %v", err)
+	}
+
+	iv, err := crypto.GenerateIV()
+	if err != nil {
+		t.Fatalf("Failed to generate IV: %v", err)
+	}
+
+	encryptedData, err := crypto.EncryptDataAES(aesKey, iv, originalData)
+	if err != nil {
+		t.Fatalf("Failed to encrypt data: %v", err)
+	}
+
+	// Malicious filename attempting traversal
+	maliciousName := "../traversal_test.txt"
+
+	payload := pkg.SmallFilePayload{
+		Key:      fmt.Sprintf("%x", encryptedAESKey),
+		Data:     fmt.Sprintf("%x", encryptedData),
+		IV:       fmt.Sprintf("%x", iv),
+		Metadata: pkg.FileMetadata{Name: maliciousName, Size: int64(len(originalData)), Hash: "dummy"},
+	}
+
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatalf("Failed to marshal payload: %v", err)
+	}
+
+	payloadStr := base64.StdEncoding.EncodeToString(jsonPayload)
+
+	// 3. Run the command
+	cmd := decryptAndSaveCmd(payloadStr, privKey)
+	msg := cmd()
+
+	// 4. Check result
+	if errMsg, ok := msg.(errMsg); ok {
+		t.Fatalf("Command returned error: %v", errMsg.error)
+	}
+
+	// 5. Verify file location
+	// It should NOT be in the parent directory
+	if _, err := os.Stat("../traversal_test.txt"); err == nil {
+		os.Remove("../traversal_test.txt")
+		t.Fatal("Security regression: File was written to ../traversal_test.txt")
+	}
+
+	// It SHOULD be in the current directory (sanitized)
+	expectedFile := "traversal_test.txt"
+	if _, err := os.Stat(expectedFile); err != nil {
+		t.Fatalf("File was not written to expected sanitized path %s: %v", expectedFile, err)
+	}
+
+	// Cleanup
+	os.Remove(expectedFile)
+}

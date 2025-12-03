@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -84,7 +85,8 @@ func decryptAndSaveCmd(payloadStr string, privateKey *rsa.PrivateKey) tea.Cmd {
 		}
 
 		// 4. Save File
-		err = os.WriteFile(payload.Metadata.Name, decryptedData, 0644)
+		safeFilename := filepath.Base(payload.Metadata.Name)
+		err = os.WriteFile(safeFilename, decryptedData, 0644)
 		if err != nil {
 			return errMsg{fmt.Errorf("failed to save file: %v", err)}
 		}
