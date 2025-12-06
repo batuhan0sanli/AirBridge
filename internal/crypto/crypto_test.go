@@ -183,3 +183,47 @@ func TestDecryptDataAES(t *testing.T) {
 		t.Errorf("Expected %s, got %s", data, decrypted)
 	}
 }
+
+func TestExportAndDecodePEMKeys(t *testing.T) {
+	// 1. Generate RSA Key Pair
+	privateKey, publicKey, err := GenerateRSAKeyPair()
+	if err != nil {
+		t.Fatalf("GenerateRSAKeyPair failed: %v", err)
+	}
+
+	// 2. Test ExportRSAPublicKeyAsPEM
+	pubPEM, err := ExportRSAPublicKeyAsPEM(publicKey)
+	if err != nil {
+		t.Fatalf("ExportRSAPublicKeyAsPEM failed: %v", err)
+	}
+	if len(pubPEM) == 0 {
+		t.Error("Exported public key PEM is empty")
+	}
+
+	// 3. Test DecodeRSAPublicKey with raw PEM (string)
+	// This verifies the fix where we handle non-base64 input
+	pubPEMStr := string(pubPEM)
+	decodedKey, err := DecodeRSAPublicKey(pubPEMStr)
+	if err != nil {
+		t.Fatalf("DecodeRSAPublicKey failed with raw PEM: %v", err)
+	}
+
+	if decodedKey.N.Cmp(publicKey.N) != 0 || decodedKey.E != publicKey.E {
+		t.Error("Decoded key does not match original key")
+	}
+
+	// 4. Test ExportRSAPrivateKeyAsPEM
+	privPEM, err := ExportRSAPrivateKeyAsPEM(privateKey)
+	if err != nil {
+		t.Fatalf("ExportRSAPrivateKeyAsPEM failed: %v", err)
+	}
+	if len(privPEM) == 0 {
+		t.Error("Exported private key PEM is empty")
+	}
+
+	// Basic check for PEM header
+	expectedHeader := "-----BEGIN RSA PRIVATE KEY-----"
+	if string(privPEM[:len(expectedHeader)]) != expectedHeader {
+		t.Errorf("Expected PEM header %q, got %q", expectedHeader, string(privPEM[:len(expectedHeader)]))
+	}
+}

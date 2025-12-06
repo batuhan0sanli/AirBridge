@@ -15,7 +15,8 @@ func DecodeRSAPublicKey(pubKeyStr string) (*rsa.PublicKey, error) {
 	// Base64 decode
 	pemBytes, err := base64.StdEncoding.DecodeString(pubKeyStr)
 	if err != nil {
-		return nil, fmt.Errorf("could not decode base64 public key: %v", err)
+		// If base64 decoding fails, assume it's a raw PEM string
+		pemBytes = []byte(pubKeyStr)
 	}
 
 	// Decode PEM block
@@ -70,6 +71,33 @@ func EncodeRSAPublicKey(publicKey *rsa.PublicKey) (string, error) {
 	})
 
 	return base64.StdEncoding.EncodeToString(pubBytes), nil
+}
+
+// ExportRSAPublicKeyAsPEM exports an RSA public key as PEM encoded bytes.
+func ExportRSAPublicKeyAsPEM(publicKey *rsa.PublicKey) ([]byte, error) {
+	pubASN1, err := x509.MarshalPKIXPublicKey(publicKey)
+	if err != nil {
+		return nil, fmt.Errorf("could not marshal public key: %v", err)
+	}
+
+	pubBytes := pem.EncodeToMemory(&pem.Block{
+		Type:  "PUBLIC KEY",
+		Bytes: pubASN1,
+	})
+
+	return pubBytes, nil
+}
+
+// ExportRSAPrivateKeyAsPEM exports an RSA private key as PEM encoded bytes.
+func ExportRSAPrivateKeyAsPEM(privateKey *rsa.PrivateKey) ([]byte, error) {
+	privBytes := x509.MarshalPKCS1PrivateKey(privateKey)
+
+	pemBytes := pem.EncodeToMemory(&pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: privBytes,
+	})
+
+	return pemBytes, nil
 }
 
 // DecryptAESKeyWithRSA decrypts an AES key using RSA-OAEP with SHA256.
