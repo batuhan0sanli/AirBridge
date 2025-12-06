@@ -18,6 +18,7 @@ It features a TUI (Terminal User Interface) for easy interaction, allowing you t
 - Generate and share public keys.
 - Encrypt files with a recipient's public key.
 - Decrypt received payloads using your private key.`,
+	Version: "v0.1.3",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
