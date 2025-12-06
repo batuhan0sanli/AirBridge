@@ -44,22 +44,23 @@ func TestAESEncryption(t *testing.T) {
 		t.Errorf("Expected key length 32, got %d", len(key))
 	}
 
-	iv, err := GenerateIV()
+	nonce, err := GenerateIV()
 	if err != nil {
 		t.Fatalf("GenerateIV failed: %v", err)
 	}
-	if len(iv) != 16 {
-		t.Errorf("Expected IV length 16, got %d", len(iv))
+	// GCM nonce is 12 bytes
+	if len(nonce) != 12 {
+		t.Errorf("Expected nonce length 12, got %d", len(nonce))
 	}
 
 	data := []byte("secret message")
-	encrypted, err := EncryptDataAES(key, iv, data)
+	encrypted, err := EncryptDataAES(key, nonce, data)
 	if err != nil {
 		t.Fatalf("EncryptDataAES failed: %v", err)
 	}
 
-	// Decrypt to verify (using the same function since CTR is symmetric)
-	decrypted, err := EncryptDataAES(key, iv, encrypted)
+	// Decrypt to verify
+	decrypted, err := DecryptDataAES(key, nonce, encrypted)
 	if err != nil {
 		t.Fatalf("Decrypt failed: %v", err)
 	}
@@ -164,16 +165,16 @@ func TestDecryptAESKeyWithRSA(t *testing.T) {
 
 func TestDecryptDataAES(t *testing.T) {
 	key, _ := GenerateAESKey()
-	iv, _ := GenerateIV()
+	nonce, _ := GenerateIV()
 	data := []byte("test data for decryption wrapper")
 
-	encrypted, err := EncryptDataAES(key, iv, data)
+	encrypted, err := EncryptDataAES(key, nonce, data)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Test the wrapper function
-	decrypted, err := DecryptDataAES(key, iv, encrypted)
+	decrypted, err := DecryptDataAES(key, nonce, encrypted)
 	if err != nil {
 		t.Fatalf("DecryptDataAES failed: %v", err)
 	}

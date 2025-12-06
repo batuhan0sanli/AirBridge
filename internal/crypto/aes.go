@@ -16,31 +16,52 @@ func GenerateAESKey() ([]byte, error) {
 	return key, nil
 }
 
-// GenerateIV generates a random 16-byte Initialization Vector.
+// GenerateIV generates a random 12-byte Nonce for AES-GCM.
 func GenerateIV() ([]byte, error) {
-	iv := make([]byte, aes.BlockSize)
-	if _, err := rand.Read(iv); err != nil {
-		return nil, fmt.Errorf("could not generate IV: %v", err)
+	// GCM standard nonce size is 12 bytes
+	nonce := make([]byte, 12)
+	if _, err := rand.Read(nonce); err != nil {
+		return nil, fmt.Errorf("could not generate nonce: %v", err)
 	}
-	return iv, nil
+	return nonce, nil
 }
 
-// EncryptDataAES encrypts data using AES-CTR.
-func EncryptDataAES(key, iv, data []byte) ([]byte, error) {
+// EncryptDataAES encrypts data using AES-GCM.
+func EncryptDataAES(key, nonce, data []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, fmt.Errorf("could not create AES cipher: %v", err)
 	}
 
-	stream := cipher.NewCTR(block, iv)
-	encryptedData := make([]byte, len(data))
-	stream.XORKeyStream(encryptedData, data)
+	aesGCM, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, fmt.Errorf("could not create GCM: %v", err)
+	}
 
-	return encryptedData, nil
+	// Seal encrypts and authenticates the data.
+	// The nonce is passed as the first argument to Seal, but usually handling it separately is better for storage.
+	// Here we just return the ciphertext (which includes the tag appended to it).
+	ciphertext := aesGCM.Seal(nil, nonce, data, nil)
+
+	return ciphertext, nil
 }
 
-// DecryptDataAES decrypts data using AES-CTR.
-// Since CTR mode is symmetric, encryption and decryption are the same operation.
-func DecryptDataAES(key, iv, data []byte) ([]byte, error) {
-	return EncryptDataAES(key, iv, data)
+// DecryptDataAES decrypts data using AES-GCM.
+func DecryptDataAES(key, nonce, data []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, fmt.Errorf("could not create AES cipher: %v", err)
+	}
+
+	aesGCM, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, fmt.Errorf("could not create GCM: %v", err)
+	}
+
+	plaintext, err := aesGCM.Open(nil, nonce, data, nil)
+	if err != nil {
+		return nil, fmt.Errorf("could not decrypt/authenticate data: %v", err)
+	}
+
+	return plaintext, nil
 }

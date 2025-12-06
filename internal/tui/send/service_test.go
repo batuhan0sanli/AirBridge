@@ -94,8 +94,8 @@ func TestEncryptFile(t *testing.T) {
 	if payload.Data == "" {
 		t.Error("Payload data is empty")
 	}
-	if payload.IV == "" {
-		t.Error("Payload IV is empty")
+	if payload.Nonce == "" {
+		t.Error("Payload Nonce is empty")
 	}
 	if payload.Metadata.Name != metadata.Name {
 		t.Errorf("Expected metadata name %s, got %s", metadata.Name, payload.Metadata.Name)

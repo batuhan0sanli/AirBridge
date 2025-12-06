@@ -43,12 +43,13 @@ func encryptForTest(t *testing.T, data []byte, pubKey *rsa.PublicKey) string {
 		t.Fatalf("Failed to encrypt AES key: %v", err)
 	}
 
-	iv, err := crypto.GenerateIV()
+	// Generate Nonce for AES-GCM
+	nonce, err := crypto.GenerateIV()
 	if err != nil {
-		t.Fatalf("Failed to generate IV: %v", err)
+		t.Fatalf("Failed to generate nonce: %v", err)
 	}
 
-	encryptedData, err := crypto.EncryptDataAES(aesKey, iv, data)
+	encryptedData, err := crypto.EncryptDataAES(aesKey, nonce, data)
 	if err != nil {
 		t.Fatalf("Failed to encrypt data: %v", err)
 	}
@@ -56,7 +57,7 @@ func encryptForTest(t *testing.T, data []byte, pubKey *rsa.PublicKey) string {
 	payload := pkg.SmallFilePayload{
 		Key:      fmt.Sprintf("%x", encryptedAESKey),
 		Data:     fmt.Sprintf("%x", encryptedData),
-		IV:       fmt.Sprintf("%x", iv),
+		Nonce:    fmt.Sprintf("%x", nonce),
 		Metadata: pkg.FileMetadata{Name: "test_decrypted.txt", Size: int64(len(data)), Hash: "dummy"},
 	}
 
@@ -139,12 +140,12 @@ func TestDecryptAndSaveCmd_PathTraversal(t *testing.T) {
 		t.Fatalf("Failed to encrypt AES key: %v", err)
 	}
 
-	iv, err := crypto.GenerateIV()
+	nonce, err := crypto.GenerateIV()
 	if err != nil {
-		t.Fatalf("Failed to generate IV: %v", err)
+		t.Fatalf("Failed to generate nonce: %v", err)
 	}
 
-	encryptedData, err := crypto.EncryptDataAES(aesKey, iv, originalData)
+	encryptedData, err := crypto.EncryptDataAES(aesKey, nonce, originalData)
 	if err != nil {
 		t.Fatalf("Failed to encrypt data: %v", err)
 	}
@@ -155,7 +156,7 @@ func TestDecryptAndSaveCmd_PathTraversal(t *testing.T) {
 	payload := pkg.SmallFilePayload{
 		Key:      fmt.Sprintf("%x", encryptedAESKey),
 		Data:     fmt.Sprintf("%x", encryptedData),
-		IV:       fmt.Sprintf("%x", iv),
+		Nonce:    fmt.Sprintf("%x", nonce),
 		Metadata: pkg.FileMetadata{Name: maliciousName, Size: int64(len(originalData)), Hash: "dummy"},
 	}
 
@@ -178,7 +179,7 @@ func TestDecryptAndSaveCmd_PathTraversal(t *testing.T) {
 	// 5. Verify file location
 	// It should NOT be in the parent directory
 	if _, err := os.Stat("../traversal_test.txt"); err == nil {
-		os.Remove("../traversal_test.txt")
+		_ = os.Remove("../traversal_test.txt")
 		t.Fatal("Security regression: File was written to ../traversal_test.txt")
 	}
 
@@ -189,5 +190,5 @@ func TestDecryptAndSaveCmd_PathTraversal(t *testing.T) {
 	}
 
 	// Cleanup
-	os.Remove(expectedFile)
+	_ = os.Remove(expectedFile)
 }

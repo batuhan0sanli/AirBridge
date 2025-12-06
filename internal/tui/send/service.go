@@ -46,10 +46,10 @@ func encryptFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.Public
 		return "", fmt.Errorf("could not encrypt symmetric key with public key: %v", err)
 	}
 
-	// Generate IV (Initialization Vector)
-	iv, err := crypto.GenerateIV()
+	// Generate Nonce (Number used once) for AES-GCM
+	nonce, err := crypto.GenerateIV()
 	if err != nil {
-		return "", fmt.Errorf("could not generate IV: %v", err)
+		return "", fmt.Errorf("could not generate nonce: %v", err)
 	}
 
 	fileBytes, err := io.ReadAll(file)
@@ -57,8 +57,8 @@ func encryptFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.Public
 		return "", fmt.Errorf("error reading small file into memory: %v", err)
 	}
 
-	// Encrypt with CTR stream
-	encryptedData, err := crypto.EncryptDataAES(aesKey, iv, fileBytes)
+	// Encrypt with GCM
+	encryptedData, err := crypto.EncryptDataAES(aesKey, nonce, fileBytes)
 	if err != nil {
 		return "", fmt.Errorf("could not encrypt data: %v", err)
 	}
@@ -67,7 +67,7 @@ func encryptFile(file *os.File, metadata pkg.FileMetadata, publicKey *rsa.Public
 	payload := pkg.SmallFilePayload{
 		Key:      fmt.Sprintf("%x", encryptedAESKey),
 		Data:     fmt.Sprintf("%x", encryptedData),
-		IV:       fmt.Sprintf("%x", iv),
+		Nonce:    fmt.Sprintf("%x", nonce),
 		Metadata: metadata,
 	}
 

@@ -4,7 +4,7 @@ package pkg
 type SmallFilePayload struct {
 	Key      string       `json:"key"`
 	Data     string       `json:"data"`
-	IV       string       `json:"iv"`
+	Nonce    string       `json:"nonce"`
 	Metadata FileMetadata `json:"metadata"`
 }
 

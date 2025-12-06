@@ -7,9 +7,9 @@ import (
 
 func TestSmallFilePayload_JSON(t *testing.T) {
 	payload := SmallFilePayload{
-		Key:  "testkey",
-		Data: "testdata",
-		IV:   "testiv",
+		Key:   "testkey",
+		Data:  "testdata",
+		Nonce: "testnonce",
 		Metadata: FileMetadata{
 			Name: "test.txt",
 			Size: 123,
@@ -35,8 +35,8 @@ func TestSmallFilePayload_JSON(t *testing.T) {
 	if decoded.Data != payload.Data {
 		t.Errorf("Expected Data %s, got %s", payload.Data, decoded.Data)
 	}
-	if decoded.IV != payload.IV {
-		t.Errorf("Expected IV %s, got %s", payload.IV, decoded.IV)
+	if decoded.Nonce != payload.Nonce {
+		t.Errorf("Expected Nonce %s, got %s", payload.Nonce, decoded.Nonce)
 	}
 	if decoded.Metadata.Name != payload.Metadata.Name {
 		t.Errorf("Expected Metadata Name %s, got %s", payload.Metadata.Name, decoded.Metadata.Name)

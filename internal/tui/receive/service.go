@@ -69,9 +69,9 @@ func decryptAndSaveCmd(payloadStr string, privateKey *rsa.PrivateKey) tea.Cmd {
 		}
 
 		// 3. Decrypt Data
-		iv, err := hex.DecodeString(payload.IV)
+		nonce, err := hex.DecodeString(payload.Nonce)
 		if err != nil {
-			return errMsg{fmt.Errorf("invalid hex iv: %v", err)}
+			return errMsg{fmt.Errorf("invalid hex nonce: %v", err)}
 		}
 
 		encryptedData, err := hex.DecodeString(payload.Data)
@@ -79,7 +79,7 @@ func decryptAndSaveCmd(payloadStr string, privateKey *rsa.PrivateKey) tea.Cmd {
 			return errMsg{fmt.Errorf("invalid hex data: %v", err)}
 		}
 
-		decryptedData, err := crypto.DecryptDataAES(aesKey, iv, encryptedData)
+		decryptedData, err := crypto.DecryptDataAES(aesKey, nonce, encryptedData)
 		if err != nil {
 			return errMsg{fmt.Errorf("failed to decrypt data: %v", err)}
 		}

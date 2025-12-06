@@ -133,10 +133,10 @@ AirBridge has two main modes: **Send** and **Receive**.
 AirBridge uses a robust hybrid encryption scheme to ensure security:
 
 1. **Key Exchange:** The receiver generates an ephemeral **RSA-2048** key pair.
-2. **Symmetric Encryption:** The sender generates a random **AES-256** key and a random Initialization Vector (IV).
-3. **Data Encryption:** The file is encrypted using **AES-256-CTR**.
+2. **Symmetric Encryption:** The sender generates a random **AES-256** key and a random Nonce.
+3. **Data Encryption:** The file is encrypted using **AES-256-GCM**.
 4. **Key Encapsulation:** The AES key is encrypted with the receiver's RSA Public Key using **RSA-OAEP** (with SHA-256).
-5. **Payload:** The encrypted AES key, IV, and encrypted file data are bundled into a JSON object and Base64 encoded for
+5. **Payload:** The encrypted AES key, Nonce, and encrypted file data are bundled into a JSON object and Base64 encoded for
    easy transport.
 
 ## 🤝 Contributing
