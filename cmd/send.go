@@ -13,6 +13,8 @@ import (
 )
 
 // sendCmd represents the send command
+var pubKeyPath string
+
 var sendCmd = &cobra.Command{
 	Use:   "send [file]",
 	Short: "Send a file securely.",
@@ -26,7 +28,18 @@ You can optionally provide a file path as an argument to skip the file selection
 		if len(args) > 0 {
 			initialFile = args[0]
 		}
-		p := tea.NewProgram(send.InitialModel(initialFile), tea.WithAltScreen())
+
+		var initialPubKey string
+		if pubKeyPath != "" {
+			content, err := os.ReadFile(pubKeyPath)
+			if err != nil {
+				fmt.Printf("Error reading public key file: %v\n", err)
+				os.Exit(1)
+			}
+			initialPubKey = string(content)
+		}
+
+		p := tea.NewProgram(send.InitialModel(initialFile, initialPubKey), tea.WithAltScreen())
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)
@@ -36,4 +49,5 @@ You can optionally provide a file path as an argument to skip the file selection
 
 func init() {
 	rootCmd.AddCommand(sendCmd)
+	sendCmd.Flags().StringVarP(&pubKeyPath, "pubkey", "k", "", "Path to recipient's public key file (skips manual paste)")
 }

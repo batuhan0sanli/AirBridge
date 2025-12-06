@@ -45,7 +45,7 @@ type Model struct {
 }
 
 // InitialModel initializes the send model with default values.
-func InitialModel(initialFile string) *Model {
+func InitialModel(initialFile string, initialPubKey string) *Model {
 	fp := filepicker.New()
 	styles := filepicker.DefaultStyles()
 	fp.Styles = styles
@@ -68,6 +68,7 @@ func InitialModel(initialFile string) *Model {
 		filepicker:   fp,
 		textarea:     ta,
 		selectedFile: initialFile,
+		rawPublicKey: initialPubKey,
 		err:          nil}
 }
 

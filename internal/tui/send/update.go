@@ -41,6 +41,13 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.statusText = ""
 		m.err = nil
 		m.nextStep()
+		if m.step == StepReadyingPublicKey {
+			m.statusText = "Processing public key"
+			return m, tea.Batch(
+				processPublicKeyCmd(m.rawPublicKey, m.file, m.fileMetadata),
+				m.spinner.Tick,
+			)
+		}
 		return m, nil
 
 	case smallFilePayloadMsg:
