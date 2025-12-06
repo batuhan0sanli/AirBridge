@@ -227,3 +227,31 @@ func TestExportAndDecodePEMKeys(t *testing.T) {
 		t.Errorf("Expected PEM header %q, got %q", expectedHeader, string(privPEM[:len(expectedHeader)]))
 	}
 }
+
+func TestDecodeRSAPrivateKey(t *testing.T) {
+	// 1. Generate keys
+	privateKey, _, err := GenerateRSAKeyPair()
+	if err != nil {
+		t.Fatalf("GenerateRSAKeyPair failed: %v", err)
+	}
+
+	// 2. Export Private Key to PEM
+	privPEM, err := ExportRSAPrivateKeyAsPEM(privateKey)
+	if err != nil {
+		t.Fatalf("ExportRSAPrivateKeyAsPEM failed: %v", err)
+	}
+
+	// 3. Decode back
+	decodedPrivKey, err := DecodeRSAPrivateKey(privPEM)
+	if err != nil {
+		t.Fatalf("DecodeRSAPrivateKey failed: %v", err)
+	}
+
+	// 4. Validate
+	if decodedPrivKey.N.Cmp(privateKey.N) != 0 {
+		t.Error("Decoded private key N does not match original key")
+	}
+	if decodedPrivKey.D.Cmp(privateKey.D) != 0 {
+		t.Error("Decoded private key D does not match original key")
+	}
+}

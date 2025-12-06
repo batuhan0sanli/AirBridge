@@ -11,6 +11,12 @@ import (
 
 func (m *Model) Init() tea.Cmd {
 	m.nextStep()
+	if m.privateKey != nil {
+		return tea.Batch(
+			m.spinner.Tick,
+			textarea.Blink,
+		)
+	}
 	return tea.Batch(
 		generateKeyCmd(),
 		m.spinner.Tick,

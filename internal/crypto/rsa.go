@@ -10,6 +10,23 @@ import (
 	"fmt"
 )
 
+// DecodeRSAPrivateKey decodes a PEM encoded bytes into an RSA private key.
+func DecodeRSAPrivateKey(pemBytes []byte) (*rsa.PrivateKey, error) {
+	// Decode PEM block
+	pemBlock, _ := pem.Decode(pemBytes)
+	if pemBlock == nil {
+		return nil, fmt.Errorf("could not decode PEM block")
+	}
+
+	// Parse PKCS1 private key
+	privateKey, err := x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse private key: %v", err)
+	}
+
+	return privateKey, nil
+}
+
 // DecodeRSAPublicKey decodes a base64 encoded PEM string into an RSA public key.
 func DecodeRSAPublicKey(pubKeyStr string) (*rsa.PublicKey, error) {
 	// Base64 decode
