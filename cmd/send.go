@@ -44,7 +44,7 @@ Use --headless with -k and -o for headless mode.`,
 			initialPubKey = string(content)
 		}
 
-		var appMode AppMode = ModeTUI
+		var appMode = ModeTUI
 		if headless {
 			appMode = ModeCLI
 		}

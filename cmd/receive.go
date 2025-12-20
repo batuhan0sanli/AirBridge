@@ -48,7 +48,7 @@ Use --headless with -k and -i for headless mode.`,
 			initialPayload = string(content)
 		}
 
-		var appMode AppMode = ModeTUI
+		var appMode = ModeTUI
 		if headlessReceive {
 			appMode = ModeCLI
 		}

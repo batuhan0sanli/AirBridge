@@ -96,7 +96,7 @@ func RunSend(filePath string, pubKeyPEM string, outputFilePath string) error {
 	if err != nil {
 		return fmt.Errorf("error opening file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	metadata, err := GetFileMetadata(file)
 	if err != nil {
