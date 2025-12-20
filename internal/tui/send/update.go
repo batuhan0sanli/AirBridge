@@ -3,6 +3,8 @@ package send
 import (
 	"AirBridge/internal/tui"
 	"AirBridge/pkg"
+	"fmt"
+	"os"
 
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/textarea"
@@ -54,6 +56,17 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.filePayload = msg.payload
 		m.statusText = ""
 		m.err = nil
+
+		if m.outputFilePath != "" {
+			err := os.WriteFile(m.outputFilePath, []byte(m.filePayload), 0644)
+			if err != nil {
+				m.err = fmt.Errorf("failed to save payload: %w", err)
+			} else {
+				// We can stay on the same step or move to ready
+				m.statusText = tui.SuccessStyle.Render(fmt.Sprintf("Payload saved to %s", m.outputFilePath))
+			}
+		}
+
 		m.nextStep()
 		return m, nil
 

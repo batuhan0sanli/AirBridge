@@ -2,6 +2,8 @@ package receive
 
 import (
 	"AirBridge/internal/tui"
+	"fmt"
+	"os"
 
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/textarea"
@@ -12,6 +14,16 @@ import (
 func (m *Model) Init() tea.Cmd {
 	m.nextStep()
 	if m.privateKey != nil {
+		// If we have both key and payload at init, start decryption immediately
+		if m.payload != "" {
+			m.statusText = "Decrypting..."
+			m.step = StepDecrypting // Force step update for consistency
+			return tea.Batch(
+				decryptAndSaveCmd(m.payload, m.privateKey),
+				m.spinner.Tick,
+			)
+		}
+
 		return tea.Batch(
 			m.spinner.Tick,
 			textarea.Blink,
@@ -37,6 +49,15 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case fileDecryptedMsg:
 		m.statusText = "File saved successfully!"
+		// Handle file deletion if requested
+		if m.deleteFile && m.payloadPath != "" {
+			err := os.Remove(m.payloadPath)
+			if err != nil {
+				m.statusText += fmt.Sprintf(" (Failed to delete payload: %v)", err)
+			} else {
+				m.statusText += " (Payload deleted)"
+			}
+		}
 		m.nextStep()
 		return m, nil
 

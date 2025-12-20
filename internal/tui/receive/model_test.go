@@ -8,7 +8,7 @@ import (
 
 func TestInitialModel(t *testing.T) {
 	// 1. Test with empty key (Default behavior)
-	model1 := InitialModel(nil)
+	model1 := InitialModel(nil, "", "", false)
 	if model1.step != StepGeneratingKey {
 		t.Errorf("Expected step StepGeneratingKey for empty input, got %v", model1.step)
 	}
@@ -26,7 +26,7 @@ func TestInitialModel(t *testing.T) {
 		t.Fatalf("Failed to export private key: %v", err)
 	}
 
-	model2 := InitialModel(privKeyPEM)
+	model2 := InitialModel(privKeyPEM, "", "", false)
 	if model2.step != StepAwaitingPayload {
 		t.Errorf("Expected step StepAwaitingPayload for valid key, got %v", model2.step)
 	}
@@ -45,7 +45,7 @@ func TestInitialModel(t *testing.T) {
 
 	// 3. Test with Invalid Private Key
 	invalidKeyPEM := []byte("-----BEGIN RSA PRIVATE KEY-----\nINVALID_DATA\n-----END RSA PRIVATE KEY-----")
-	model3 := InitialModel(invalidKeyPEM)
+	model3 := InitialModel(invalidKeyPEM, "", "", false)
 
 	// Should fall back to generating key
 	if model3.step != StepGeneratingKey {

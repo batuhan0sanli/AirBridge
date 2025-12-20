@@ -40,12 +40,13 @@ type Model struct {
 
 	filePayload string
 
-	statusText string
-	err        error
+	statusText     string
+	outputFilePath string
+	err            error
 }
 
 // InitialModel initializes the send model with default values.
-func InitialModel(initialFile string, initialPubKey string) *Model {
+func InitialModel(initialFile string, initialPubKey string, outputFilePath string) *Model {
 	fp := filepicker.New()
 	styles := filepicker.DefaultStyles()
 	fp.Styles = styles
@@ -62,14 +63,15 @@ func InitialModel(initialFile string, initialPubKey string) *Model {
 	ta.Focus()
 
 	return &Model{
-		Window:       window,
-		step:         StepUndefined,
-		spinner:      s,
-		filepicker:   fp,
-		textarea:     ta,
-		selectedFile: initialFile,
-		rawPublicKey: initialPubKey,
-		err:          nil}
+		Window:         window,
+		step:           StepUndefined,
+		spinner:        s,
+		filepicker:     fp,
+		textarea:       ta,
+		selectedFile:   initialFile,
+		rawPublicKey:   initialPubKey,
+		outputFilePath: outputFilePath,
+		err:            nil}
 }
 
 func (m *Model) nextStep() {

@@ -14,6 +14,8 @@ import (
 
 // receiveCmd represents the receive command
 var privKeyPath string
+var inputPayloadPath string
+var deletePayload bool
 
 var receiveCmd = &cobra.Command{
 	Use:   "receive",
@@ -32,7 +34,17 @@ You can then provide the encrypted text block.`,
 			}
 		}
 
-		p := tea.NewProgram(receive.InitialModel(initialPrivKeyPEM))
+		var initialPayload string
+		if inputPayloadPath != "" {
+			content, err := os.ReadFile(inputPayloadPath)
+			if err != nil {
+				fmt.Printf("Error reading payload file: %v\n", err)
+				os.Exit(1)
+			}
+			initialPayload = string(content)
+		}
+
+		p := tea.NewProgram(receive.InitialModel(initialPrivKeyPEM, initialPayload, inputPayloadPath, deletePayload))
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)
@@ -43,4 +55,6 @@ You can then provide the encrypted text block.`,
 func init() {
 	rootCmd.AddCommand(receiveCmd)
 	receiveCmd.Flags().StringVarP(&privKeyPath, "privkey", "k", "", "Path to private key")
+	receiveCmd.Flags().StringVarP(&inputPayloadPath, "input", "i", "", "Path to input payload file")
+	receiveCmd.Flags().BoolVarP(&deletePayload, "delete", "d", false, "Delete payload file after successful decryption")
 }

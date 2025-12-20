@@ -6,7 +6,7 @@ import (
 
 func TestInitialModel(t *testing.T) {
 	// 1. Test with no arguments (Default)
-	model1 := InitialModel("", "")
+	model1 := InitialModel("", "", "")
 	if model1.rawPublicKey != "" {
 		t.Error("Expected empty rawPublicKey")
 	}
@@ -18,7 +18,7 @@ func TestInitialModel(t *testing.T) {
 	initialFile := "/path/to/file"
 	initialKey := "some_public_key_string"
 
-	model2 := InitialModel(initialFile, initialKey)
+	model2 := InitialModel(initialFile, initialKey, "")
 	if model2.selectedFile != initialFile {
 		t.Errorf("Expected selectedFile %q, got %q", initialFile, model2.selectedFile)
 	}

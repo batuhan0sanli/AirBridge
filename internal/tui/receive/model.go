@@ -32,14 +32,16 @@ type Model struct {
 	publicKey  *rsa.PublicKey
 	encodedKey string
 
-	payload string
+	payload     string
+	payloadPath string
+	deleteFile  bool
 
 	statusText string
 	err        error
 }
 
 // InitialModel initializes the receive model with default values.
-func InitialModel(initialPrivKeyPEM []byte) *Model {
+func InitialModel(initialPrivKeyPEM []byte, initialPayload string, payloadPath string, deleteFile bool) *Model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
@@ -75,16 +77,30 @@ func InitialModel(initialPrivKeyPEM []byte) *Model {
 		}
 	}
 
+	if initialPayload != "" {
+		ta.SetValue(initialPayload)
+		// If we already have the key, we can proceed
+		if step == StepAwaitingPayload {
+			statusText = "Decrypting..."
+			// We will rely on Update() init logic or nextStep logic to pick this up,
+			// or we can set it here directly if we trust the flow.
+			// Let's keep it clean: if we have payload, we update the model state.
+		}
+	}
+
 	return &Model{
-		Window:     window,
-		step:       step,
-		spinner:    s,
-		textarea:   ta,
-		privateKey: privateKey,
-		publicKey:  publicKey,
-		encodedKey: encodedKey,
-		statusText: statusText,
-		err:        err,
+		Window:      window,
+		step:        step,
+		spinner:     s,
+		textarea:    ta,
+		privateKey:  privateKey,
+		publicKey:   publicKey,
+		encodedKey:  encodedKey,
+		payload:     initialPayload,
+		payloadPath: payloadPath,
+		deleteFile:  deleteFile,
+		statusText:  statusText,
+		err:         err,
 	}
 }
 

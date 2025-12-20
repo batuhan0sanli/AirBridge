@@ -14,6 +14,7 @@ import (
 
 // sendCmd represents the send command
 var pubKeyPath string
+var outputFilePath string
 
 var sendCmd = &cobra.Command{
 	Use:   "send [file]",
@@ -39,7 +40,7 @@ You can optionally provide a file path as an argument to skip the file selection
 			initialPubKey = string(content)
 		}
 
-		p := tea.NewProgram(send.InitialModel(initialFile, initialPubKey), tea.WithAltScreen())
+		p := tea.NewProgram(send.InitialModel(initialFile, initialPubKey, outputFilePath), tea.WithAltScreen())
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)
@@ -50,4 +51,7 @@ You can optionally provide a file path as an argument to skip the file selection
 func init() {
 	rootCmd.AddCommand(sendCmd)
 	sendCmd.Flags().StringVarP(&pubKeyPath, "pubkey", "k", "", "Path to recipient's public key file (skips manual paste)")
+	sendCmd.Flags().StringVarP(&outputFilePath, "output", "o", "", "Path to save the payload file (default: payload.abp)")
+	// Make the flag optional (NoOptDefVal) so -o works without an argument
+	sendCmd.Flags().Lookup("output").NoOptDefVal = "payload.abp"
 }
