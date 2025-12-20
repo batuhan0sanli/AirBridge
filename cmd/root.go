@@ -9,6 +9,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type AppMode int
+
+const (
+	ModeTUI AppMode = iota
+	ModeCLI
+)
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "airbridge",

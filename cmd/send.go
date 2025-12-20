@@ -4,6 +4,7 @@ Copyright © 2025 Batuhan Sanli <batuhansanli@gmail.com>
 package cmd
 
 import (
+	"AirBridge/internal/cli"
 	"AirBridge/internal/tui/send"
 	"fmt"
 	"os"
@@ -15,6 +16,7 @@ import (
 // sendCmd represents the send command
 var pubKeyPath string
 var outputFilePath string
+var headless bool
 
 var sendCmd = &cobra.Command{
 	Use:   "send [file]",
@@ -23,7 +25,9 @@ var sendCmd = &cobra.Command{
 It allows you to select a file, encrypt it with a recipient's public key,
 and generates the encrypted payload.
 
-You can optionally provide a file path as an argument to skip the file selection step.`,
+You can optionally provide a file path as an argument to skip the file selection step.
+
+Use --headless with -k and -o for headless mode.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var initialFile string
 		if len(args) > 0 {
@@ -40,10 +44,34 @@ You can optionally provide a file path as an argument to skip the file selection
 			initialPubKey = string(content)
 		}
 
-		p := tea.NewProgram(send.InitialModel(initialFile, initialPubKey, outputFilePath), tea.WithAltScreen())
-		if _, err := p.Run(); err != nil {
-			fmt.Printf("Alas, there's been an error: %v", err)
-			os.Exit(1)
+		var appMode AppMode = ModeTUI
+		if headless {
+			appMode = ModeCLI
+		}
+
+		switch appMode {
+		case ModeCLI:
+			if initialFile == "" {
+				fmt.Println("Error: File argument required in headless mode")
+				os.Exit(1)
+			}
+			if initialPubKey == "" {
+				fmt.Println("Error: Public key (-k) required in headless mode")
+				os.Exit(1)
+			}
+
+			// Headless Execution
+			if err := cli.RunSend(initialFile, initialPubKey, outputFilePath); err != nil {
+				fmt.Printf("Error running headless send: %v\n", err)
+				os.Exit(1)
+			}
+
+		case ModeTUI:
+			p := tea.NewProgram(send.InitialModel(initialFile, initialPubKey, outputFilePath), tea.WithAltScreen())
+			if _, err := p.Run(); err != nil {
+				fmt.Printf("Alas, there's been an error: %v", err)
+				os.Exit(1)
+			}
 		}
 	},
 }
@@ -54,4 +82,5 @@ func init() {
 	sendCmd.Flags().StringVarP(&outputFilePath, "output", "o", "", "Path to save the payload file (default: payload.abp)")
 	// Make the flag optional (NoOptDefVal) so -o works without an argument
 	sendCmd.Flags().Lookup("output").NoOptDefVal = "payload.abp"
+	sendCmd.Flags().BoolVarP(&headless, "headless", "H", false, "Run in headless mode (requires -k and file arg)")
 }
