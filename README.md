@@ -128,6 +128,69 @@ AirBridge has two main modes: **Send** and **Receive**.
 4. AirBridge will generate an **Encrypted Payload**.
 5. Copy this payload and send it to the receiver.
 
+### 🔑 Key Generation
+
+> [!NOTE]
+> This step is **optional**. In the standard interactive mode (TUI), AirBridge automatically handles ephemeral key generation for each session. You only need to generate keys manually if you want to reuse them or use the CLI/headless mode.
+
+To generate a reusable RSA key pair (public and private keys):
+
+```bash
+airbridge keygen
+```
+This will create `private.pem` and `public.pem` in your current directory.
+
+### 🚩 Flags
+
+#### Send
+| Flag | Description |
+| :--- | :--- |
+| `-k`, `--pubkey` | Path to recipient's public key file (skips manual paste). |
+| `-o`, `--output` | Path to save the payload file (default: `payload.abp`). |
+| `-H`, `--headless` | Run in headless mode (requires `-k` and file argument). |
+
+#### Receive
+| Flag | Description |
+| :--- | :--- |
+| `-k`, `--privkey` | Path to private key. |
+| `-i`, `--input` | Path to input payload file. |
+| `-d`, `--delete` | Delete payload file after successful decryption. |
+| `-H`, `--headless` | Run in headless mode (requires `-k` and `-i`). |
+
+#### Keygen
+| Flag | Description |
+| :--- | :--- |
+| `-o`, `--output` | Directory to save the generated keys (default: current directory). |
+
+### 💡 Usage Examples
+
+#### Generating Keys
+```bash
+# Generate keys in the current directory
+airbridge keygen
+
+# Generate keys in a specific directory
+airbridge keygen -o ./keys
+```
+
+#### Sending Content
+```bash
+# Send a file using a public key file
+airbridge send secret.txt -k public.pem
+
+# Send a file in headless mode (no TUI)
+airbridge send secret.txt -k public.pem -o payload.abp -H
+```
+
+#### Receiving Content
+```bash
+# Receive using a private key file and payload file
+airbridge receive -k private.pem -i payload.abp
+
+# Receive in headless mode and delete payload after success
+airbridge receive -k private.pem -i payload.abp -d -H
+```
+
 ## 🔐 Technical Details
 
 AirBridge uses a robust hybrid encryption scheme to ensure security:
